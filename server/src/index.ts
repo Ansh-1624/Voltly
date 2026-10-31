@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { db } from './database';
 import { runSeed } from './database/seed';
+import { testSupabaseConnection } from './database/supabase';
 import { authRouter } from './routes/auth.routes';
 import { hostRouter } from './routes/host.routes';
 import { guestRouter } from './routes/guest.routes';
@@ -26,14 +27,25 @@ if (db.getUsers().length === 0) {
   runSeed(db);
 }
 
-// Health check
-app.get('/api/health', (_req, res) => {
+// Health check with Supabase verification
+app.get('/api/health', async (_req, res) => {
+  let supabaseStatus: any = { configured: Boolean(process.env.DATABASE_URL) };
+  if (process.env.DATABASE_URL) {
+    try {
+      const sb = await testSupabaseConnection();
+      supabaseStatus = { ...supabaseStatus, ...sb };
+    } catch (err: any) {
+      supabaseStatus.error = err.message;
+    }
+  }
+
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     service: 'Voltly API',
     version: '1.0.0',
     mode: process.env.NODE_ENV || 'development',
+    supabase: supabaseStatus,
   });
 });
 

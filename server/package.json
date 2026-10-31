@@ -10,7 +10,8 @@
     "seed": "ts-node-dev src/database/seed.ts",
     "test": "jest --runInBand --detectOpenHandles",
     "supabase:test": "ts-node-dev -r dotenv/config src/scripts/test-supabase.ts",
-    "supabase:migrate": "ts-node-dev -r dotenv/config src/scripts/migrate-supabase.ts"
+    "supabase:migrate": "ts-node-dev -r dotenv/config src/scripts/migrate-supabase.ts",
+    "supabase:tables": "ts-node-dev -r dotenv/config src/scripts/check-tables.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

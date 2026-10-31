@@ -58,9 +58,11 @@ export async function stopChargingSession(
       }
     }
 
-    // Verify host ownership
+    // Verify host ownership or admin privileges
+    const user = db.getUserById(hostUserId);
+    const isAdmin = user?.role === 'ADMIN';
     const hostProfile = db.getHostProfileByUserId(hostUserId);
-    if (!hostProfile || hostProfile.id !== session.host_id) {
+    if (!isAdmin && (!hostProfile || hostProfile.id !== session.host_id)) {
       throw new Error('Unauthorized: Only the host can stop this charging session.');
     }
 

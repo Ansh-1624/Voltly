@@ -71,3 +71,28 @@ qrRouter.post('/scan', requireRole(['HOST', 'ADMIN']), async (req: Authenticated
   }
 });
 
+/**
+ * Demo convenience: Get latest active arrival token waiting for this host
+ */
+qrRouter.get('/latest-demo-token', requireRole(['HOST', 'ADMIN']), (req: AuthenticatedRequest, res: Response) => {
+  const hostProfile = db.getHostProfileByUserId(req.user!.id);
+  if (!hostProfile) {
+    return res.status(400).json({ error: 'Host profile not found' });
+  }
+
+  const latest = [...db.getQRTokens()]
+    .reverse()
+    .find(
+      (q) =>
+        q.host_id === hostProfile.id &&
+        !q.used_at &&
+        new Date(q.expires_at).getTime() > Date.now()
+    );
+
+  if (!latest || !latest.raw_token_demo) {
+    return res.status(404).json({ error: 'No active guest check-in token waiting for your pods right now.' });
+  }
+
+  return res.json({ token: latest.raw_token_demo });
+});
+

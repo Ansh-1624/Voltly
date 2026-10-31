@@ -10,7 +10,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { RefreshCw, Zap, Car, Bike, ShieldCheck } from 'lucide-react';
 
 export const MainApp: React.FC = () => {
-  const { user, loading, hostProfile, guestProfile, switchRole } = useAuth();
+  const { user, loading, hostProfile, guestProfile, switchRole, loginAsDemo } = useAuth();
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [forceOnboarding, setForceOnboarding] = useState(false);
 
@@ -49,9 +49,8 @@ export const MainApp: React.FC = () => {
               <div className="grid grid-cols-1 gap-3">
                 <button
                   onClick={async () => {
-                    const { loginAsDemo } = (window as any).__voltly_auth || {};
-                    // Quick start as Guest Vikram
                     setShowRoleSelection(false);
+                    await loginAsDemo('vikram.guest@voltly.com');
                   }}
                   className="p-4 rounded-2xl border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50/50 text-left transition-all group"
                 >
@@ -69,6 +68,7 @@ export const MainApp: React.FC = () => {
                 <button
                   onClick={async () => {
                     setShowRoleSelection(false);
+                    await loginAsDemo('rajesh.host@voltly.com');
                   }}
                   className="p-4 rounded-2xl border-2 border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50 text-left transition-all group"
                 >

@@ -144,6 +144,7 @@ export interface RecommendationFeedback {
 export interface QRToken {
   id: string;
   token_hash: string;
+  raw_token_demo?: string;
   guest_id: string;
   host_id: string;
   pod_id: string;

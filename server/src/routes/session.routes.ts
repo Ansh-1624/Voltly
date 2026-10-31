@@ -96,7 +96,7 @@ sessionRouter.post('/:id/confirm-shutdown', async (req: AuthenticatedRequest, re
  * Get bill for a completed session
  */
 sessionRouter.get('/:id/bill', (req: AuthenticatedRequest, res: Response) => {
-  const bill = db.getBillBySessionId(req.params.id);
+  const bill = db.getBillBySessionId(req.params.id) || db.getBills().find((b) => b.id === req.params.id);
   if (!bill) {
     return res.status(404).json({ error: 'Bill not generated or session still in progress.' });
   }
@@ -131,7 +131,7 @@ sessionRouter.get('/:id/bill', (req: AuthenticatedRequest, res: Response) => {
 sessionRouter.patch('/:id/payment', (req: AuthenticatedRequest, res: Response) => {
   const { payment_status = 'PAID', payment_method = 'UPI' } = req.body;
 
-  const bill = db.getBillBySessionId(req.params.id);
+  const bill = db.getBillBySessionId(req.params.id) || db.getBills().find((b) => b.id === req.params.id);
   if (!bill) {
     return res.status(404).json({ error: 'Bill not found' });
   }

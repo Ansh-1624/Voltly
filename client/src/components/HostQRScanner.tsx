@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { api } from '../services/api';
-import { QrCode, Camera, AlertCircle, CheckCircle2, Zap, ArrowRight } from 'lucide-react';
+import { QrCode, Camera, AlertCircle, CheckCircle2, Zap, ArrowRight, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface HostQRScannerProps {
@@ -77,6 +77,19 @@ export const HostQRScanner: React.FC<HostQRScannerProps> = ({ onSessionStarted, 
     }
   };
 
+  const handleAutofillDemoToken = async () => {
+    setError(null);
+    try {
+      const res = await api.getLatestDemoToken();
+      if (res.token) {
+        setTokenInput(res.token);
+        handleScanToken(res.token);
+      }
+    } catch (err: any) {
+      setError(err.message || 'No active guest token waiting for your pods right now.');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
@@ -115,6 +128,18 @@ export const HostQRScanner: React.FC<HostQRScannerProps> = ({ onSessionStarted, 
         {/* Camera Feed Container */}
         <div className="mb-4 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
           <div id="qr-reader-container" className="w-full text-xs" />
+        </div>
+
+        {/* 1-Click Instant Demo Check-in Helper */}
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={handleAutofillDemoToken}
+            className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <span>Auto-Detect & Authorize Arrived Guest</span>
+          </button>
         </div>
 
         {/* Manual Token Fallback */}

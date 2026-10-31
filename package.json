@@ -10,7 +10,8 @@
     "test": "cd server && npm test",
     "seed": "cd server && npm run seed",
     "supabase:test": "cd server && npm run supabase:test",
-    "supabase:migrate": "cd server && npm run supabase:migrate"
+    "supabase:migrate": "cd server && npm run supabase:migrate",
+    "supabase:tables": "cd server && npm run supabase:tables"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

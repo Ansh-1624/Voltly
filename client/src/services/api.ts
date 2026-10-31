@@ -89,6 +89,7 @@ export const api = {
     method: 'POST',
     body: JSON.stringify({ token }),
   }),
+  getLatestDemoToken: () => request<{ token: string }>('/qr/latest-demo-token'),
 
   // Sessions
   getSession: (id: string) => request<any>(`/sessions/${id}`),

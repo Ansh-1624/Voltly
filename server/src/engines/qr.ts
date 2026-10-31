@@ -77,6 +77,7 @@ export async function generateQRToken(
   const qrToken: QRToken = {
     id: crypto.randomUUID(),
     token_hash: tokenHash,
+    raw_token_demo: rawToken,
     guest_id: params.guestId,
     host_id: host.id,
     pod_id: pod.id,
