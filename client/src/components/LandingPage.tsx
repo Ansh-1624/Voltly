@@ -17,27 +17,32 @@ import {
 } from 'lucide-react';
 
 export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
-  const { loginWithGoogle, loginAsAdmin } = useAuth();
-  const [googleModalOpen, setGoogleModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'USER' | 'ADMIN'>('USER');
+  const { loginWithGoogle, loginAsAdmin, authModal, openAuthModal, closeAuthModal } = useAuth();
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleName, setGoogleName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPasscode, setAdminPasscode] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [notFoundPrompt, setNotFoundPrompt] = useState(false);
 
   const handleGoogleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!googleEmail) return;
     setAuthLoading(true);
     setAuthError(null);
+    setNotFoundPrompt(false);
+
+    const isLogin = authModal.mode === 'LOGIN';
     try {
       const name = googleName.trim() || googleEmail.split('@')[0];
-      await loginWithGoogle(googleEmail.trim(), name);
-      setGoogleModalOpen(false);
+      await loginWithGoogle(googleEmail.trim(), name, 'GUEST', isLogin ? 'login' : 'signup');
+      closeAuthModal();
     } catch (err: any) {
-      setAuthError(err.message || 'Failed to sign in with Google account. Please try again.');
+      if (err.message && err.message.includes('No Voltly account found')) {
+        setNotFoundPrompt(true);
+      }
+      setAuthError(err.message || (isLogin ? 'Failed to log in. Please check your email.' : 'Failed to register account.'));
     } finally {
       setAuthLoading(false);
     }
@@ -50,7 +55,7 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
     setAuthError(null);
     try {
       await loginAsAdmin(adminEmail.trim(), adminPasscode.trim());
-      setGoogleModalOpen(false);
+      closeAuthModal();
     } catch (err: any) {
       setAuthError(err.message || 'Invalid admin credentials or security passcode.');
     } finally {
@@ -85,18 +90,26 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
               explainable, electrically verified, reachable recommendations.
             </p>
 
-            {/* CTA & Sign In Buttons */}
+            {/* Clear Split CTAs: Sign Up (New Users) vs Log In (Existing Users) */}
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={() => setGoogleModalOpen(true)}
+                onClick={() => {
+                  setAuthError(null);
+                  setNotFoundPrompt(false);
+                  openAuthModal('SIGNUP');
+                }}
                 className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 group"
               >
-                <span>Get Started Now</span>
+                <span>Get Started (Sign Up)</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
               <button
-                onClick={() => setGoogleModalOpen(true)}
+                onClick={() => {
+                  setAuthError(null);
+                  setNotFoundPrompt(false);
+                  openAuthModal('LOGIN');
+                }}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-colors flex items-center justify-center gap-2.5 shadow-xs"
               >
                 <img
@@ -104,115 +117,25 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                   alt="Google"
                   className="w-4 h-4"
                 />
-                <span>Sign in with Google</span>
+                <span>Log In (Existing Users)</span>
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Step 1: Auth Modal (User Google vs Admin Compliance) */}
-      {googleModalOpen && (
+      {/* Step 1: Auth Modal with Clear Log In vs Sign Up vs Admin Mode */}
+      {authModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 relative">
             <button
-              onClick={() => {
-                setGoogleModalOpen(false);
-                setAuthMode('USER');
-                setAuthError(null);
-              }}
+              onClick={closeAuthModal}
               className="absolute top-5 right-5 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
-            {authMode === 'USER' ? (
-              <>
-                <div className="text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3 shadow-xs">
-                    <img
-                      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                      alt="Google"
-                      className="w-6 h-6"
-                    />
-                  </div>
-                  <h3 className="text-xl font-black text-slate-900">Sign in with Google</h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Authenticate with your Google account to access the Voltly network.
-                  </p>
-                </div>
-
-                {authError && (
-                  <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
-                    {authError}
-                  </div>
-                )}
-
-                <form onSubmit={handleGoogleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Ansh Goyal"
-                      value={googleName}
-                      onChange={(e) => setGoogleName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Google Email Address</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="yourname@gmail.com"
-                      value={googleEmail}
-                      onChange={(e) => setGoogleEmail(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={authLoading}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {authLoading ? (
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <img
-                          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                          alt=""
-                          className="w-4 h-4 bg-white rounded-full p-0.5"
-                        />
-                        <span>Continue with Google</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">Compliance & Safety Admin?</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAuthMode('ADMIN');
-                      setAuthError(null);
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold border border-purple-200 transition-colors flex items-center gap-1.5"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                    <span>Admin Login →</span>
-                  </button>
-                </div>
-
-                <p className="text-[11px] text-slate-400 text-center">
-                  🔒 In the next step, regular users choose whether to participate as an EV Driver or a Household Host.
-                </p>
-              </>
-            ) : (
+            {authModal.mode === 'ADMIN' ? (
               <>
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-center mx-auto mb-3 shadow-xs">
@@ -251,7 +174,7 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                       placeholder="Enter admin passcode"
                       value={adminPasscode}
                       onChange={(e) => setAdminPasscode(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
                     />
                     <p className="text-[10px] text-slate-400 mt-1">
                       Passcode: <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600 font-mono">voltly2026</code>
@@ -278,12 +201,188 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                   <button
                     type="button"
                     onClick={() => {
-                      setAuthMode('USER');
                       setAuthError(null);
+                      openAuthModal('LOGIN');
                     }}
                     className="text-slate-500 hover:text-slate-800 font-semibold hover:underline flex items-center gap-1"
                   >
                     <span>← Back to Driver & Host Sign-In</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Mode Selector Tabs: Log In vs Sign Up */}
+                <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openAuthModal('LOGIN');
+                      setAuthError(null);
+                      setNotFoundPrompt(false);
+                    }}
+                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
+                      authModal.mode === 'LOGIN'
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Log In (Existing)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      openAuthModal('SIGNUP');
+                      setAuthError(null);
+                      setNotFoundPrompt(false);
+                    }}
+                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
+                      authModal.mode === 'SIGNUP'
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    Sign Up (New User)
+                  </button>
+                </div>
+
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3 shadow-xs">
+                    <img
+                      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                      alt="Google"
+                      className="w-6 h-6"
+                    />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900">
+                    {authModal.mode === 'LOGIN' ? 'Welcome Back!' : 'Join Voltly Network'}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {authModal.mode === 'LOGIN'
+                      ? 'Sign in with your registered Google email to access your EV Hub.'
+                      : 'Create a new account with your Google email to start sharing or charging.'}
+                  </p>
+                </div>
+
+                {authError && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium space-y-2">
+                    <p>{authError}</p>
+                    {notFoundPrompt && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthError(null);
+                          setNotFoundPrompt(false);
+                          openAuthModal('SIGNUP');
+                        }}
+                        className="text-xs font-bold text-rose-800 underline hover:text-rose-900 block"
+                      >
+                        Click here to create a new account with this email →
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <form onSubmit={handleGoogleSubmit} className="space-y-4">
+                  {/* Full Name field only required when Signing Up as new user */}
+                  {authModal.mode === 'SIGNUP' && (
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Ansh Goyal"
+                        value={googleName}
+                        onChange={(e) => setGoogleName(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      {authModal.mode === 'LOGIN' ? 'Registered Google Email Address' : 'Google Email Address'}
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="yourname@gmail.com"
+                      value={googleEmail}
+                      onChange={(e) => setGoogleEmail(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {authLoading ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <img
+                          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                          alt=""
+                          className="w-4 h-4 bg-white rounded-full p-0.5"
+                        />
+                        <span>
+                          {authModal.mode === 'LOGIN' ? 'Log In with Google' : 'Sign Up with Google'}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {/* Subtext Switcher */}
+                <div className="text-center text-xs text-slate-500">
+                  {authModal.mode === 'LOGIN' ? (
+                    <p>
+                      New to Voltly?{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthError(null);
+                          setNotFoundPrompt(false);
+                          openAuthModal('SIGNUP');
+                        }}
+                        className="font-bold text-blue-600 hover:underline"
+                      >
+                        Create an Account
+                      </button>
+                    </p>
+                  ) : (
+                    <p>
+                      Already have an account?{' '}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthError(null);
+                          setNotFoundPrompt(false);
+                          openAuthModal('LOGIN');
+                        }}
+                        className="font-bold text-blue-600 hover:underline"
+                      >
+                        Log In here
+                      </button>
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 font-medium">Compliance & Safety Admin?</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthError(null);
+                      setNotFoundPrompt(false);
+                      openAuthModal('ADMIN');
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold border border-purple-200 transition-colors flex items-center gap-1.5"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Admin Login →</span>
                   </button>
                 </div>
               </>
@@ -372,9 +471,9 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
           <div className="flex items-center gap-4">
             <button
               onClick={() => {
-                setAuthMode('ADMIN');
-                setGoogleModalOpen(true);
                 setAuthError(null);
+                setNotFoundPrompt(false);
+                openAuthModal('ADMIN');
               }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-purple-950/80 hover:text-purple-300 border border-slate-700 text-slate-300 font-semibold transition-all shadow-sm group"
             >

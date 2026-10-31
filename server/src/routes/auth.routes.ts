@@ -110,7 +110,7 @@ authRouter.post('/demo-login', (req, res) => {
  * Google OAuth Login or Register
  */
 authRouter.post('/google', (req, res) => {
-  const { credential, email, name, role } = req.body;
+  const { credential, email, name, role, mode } = req.body;
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
@@ -123,6 +123,14 @@ authRouter.post('/google', (req, res) => {
   let isNewUser = false;
 
   if (!user) {
+    // If user clicked "Log In" specifically and the account doesn't exist yet
+    if (mode === 'login') {
+      return res.status(404).json({
+        error: 'No Voltly account found for this email. Please switch to Sign Up to create an account.',
+        notFound: true,
+      });
+    }
+
     // Brand new user registration
     isNewUser = true;
     user = {

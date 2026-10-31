@@ -9,9 +9,12 @@ interface AuthContextType {
   guestVehicle: GuestVehicle | null;
   token: string | null;
   loading: boolean;
+  authModal: { isOpen: boolean; mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' };
+  openAuthModal: (mode?: 'LOGIN' | 'SIGNUP' | 'ADMIN') => void;
+  closeAuthModal: () => void;
   login: (email: string, name?: string, role?: UserRole) => Promise<void>;
   loginAsDemo: (email: string) => Promise<void>;
-  loginWithGoogle: (email: string, name: string, role?: UserRole) => Promise<void>;
+  loginWithGoogle: (email: string, name?: string, role?: UserRole, mode?: 'login' | 'signup') => Promise<void>;
   loginAsAdmin: (email: string, passcode: string) => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => Promise<void>;
@@ -27,6 +30,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [guestVehicle, setGuestVehicle] = useState<GuestVehicle | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('voltly_token'));
   const [loading, setLoading] = useState<boolean>(true);
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' }>({
+    isOpen: false,
+    mode: 'LOGIN',
+  });
+
+  const openAuthModal = (mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' = 'LOGIN') => {
+    setAuthModal({ isOpen: true, mode });
+  };
+
+  const closeAuthModal = () => {
+    setAuthModal(prev => ({ ...prev, isOpen: false }));
+  };
 
   const refreshProfile = async () => {
     try {
@@ -79,10 +94,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithGoogle = async (email: string, name: string, role: UserRole = 'GUEST') => {
+  const loginWithGoogle = async (email: string, name?: string, role: UserRole = 'GUEST', mode?: 'login' | 'signup') => {
     setLoading(true);
     try {
-      const data = await api.googleLogin(email, name, role);
+      const data = await api.googleLogin(email, name, role, mode);
       localStorage.setItem('voltly_token', data.token);
       setToken(data.token);
       setUser(data.user);
@@ -137,6 +152,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         guestVehicle,
         token,
         loading,
+        authModal,
+        openAuthModal,
+        closeAuthModal,
         login,
         loginAsDemo,
         loginWithGoogle,

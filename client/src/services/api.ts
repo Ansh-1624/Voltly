@@ -34,9 +34,9 @@ export const api = {
     method: 'POST',
     body: JSON.stringify({ email }),
   }),
-  googleLogin: (email: string, name: string, role = 'GUEST') => request<{ user: any; token: string }>('/auth/google', {
+  googleLogin: (email: string, name?: string, role = 'GUEST', mode?: 'login' | 'signup') => request<{ user: any; token: string }>('/auth/google', {
     method: 'POST',
-    body: JSON.stringify({ email, name, role }),
+    body: JSON.stringify({ email, name, role, mode }),
   }),
   adminLogin: (email: string, passcode: string) => request<{ user: any; token: string }>('/auth/admin-login', {
     method: 'POST',
