@@ -100,3 +100,4 @@ export async function applySupabaseSchema(): Promise<boolean> {
     return false;
   }
 }
+

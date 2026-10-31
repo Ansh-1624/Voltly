@@ -8,7 +8,9 @@
     "dev:client": "cd client && npm run dev",
     "build": "cd server && npm run build && cd ../client && npm run build",
     "test": "cd server && npm test",
-    "seed": "cd server && npm run seed"
+    "seed": "cd server && npm run seed",
+    "supabase:test": "cd server && npm run supabase:test",
+    "supabase:migrate": "cd server && npm run supabase:migrate"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
