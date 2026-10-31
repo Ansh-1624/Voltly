@@ -87,3 +87,5 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`⚡ Voltly Server active on http://localhost:${PORT}`);
   });
 }
+
+export default app;

@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || '/api';
 
 function getHeaders(): HeadersInit {
   const token = localStorage.getItem('voltly_token');
