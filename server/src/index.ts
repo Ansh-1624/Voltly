@@ -27,8 +27,8 @@ if (db.getUsers().length === 0) {
   runSeed(db);
 }
 
-// Health check with Supabase verification
-app.get('/api/health', async (_req, res) => {
+// Health check with Supabase verification (supports both /api/health and /health)
+app.get(['/api/health', '/health'], async (_req, res) => {
   let supabaseStatus: any = { configured: Boolean(process.env.DATABASE_URL) };
   if (process.env.DATABASE_URL) {
     try {
@@ -49,30 +49,32 @@ app.get('/api/health', async (_req, res) => {
   });
 });
 
-// Mount API Routes
-app.use('/api/auth', authRouter);
-app.use('/api/host', hostRouter);
-app.use('/api/guest', guestRouter);
-app.use('/api/recommendations', recommendationRouter);
-app.use('/api/qr', qrRouter);
-app.use('/api/sessions', sessionRouter);
-app.use('/api/admin', adminRouter);
+// Mount API Routes (supports both /api/* and root mount)
+app.use(['/api/auth', '/auth'], authRouter);
+app.use(['/api/host', '/host'], hostRouter);
+app.use(['/api/guest', '/guest'], guestRouter);
+app.use(['/api/recommendations', '/recommendations'], recommendationRouter);
+app.use(['/api/qr', '/qr'], qrRouter);
+app.use(['/api/sessions', '/sessions'], sessionRouter);
+app.use(['/api/admin', '/admin'], adminRouter);
 
-// Serve Static Frontend in Production / Bundled mode
-const clientDistPath = path.join(__dirname, '../../client/dist');
-app.use(express.static(clientDistPath));
+// Serve Static Frontend in local development or monolithic mode (bypassed on Vercel)
+if (!process.env.VERCEL) {
+  const clientDistPath = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientDistPath));
 
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next();
-  }
-  const indexPath = path.join(clientDistPath, 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      res.status(200).send('Voltly API active. For client UI, run Vite dev server.');
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
     }
+    const indexPath = path.join(clientDistPath, 'index.html');
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        res.status(200).send('Voltly API active. For client UI, run Vite dev server.');
+      }
+    });
   });
-});
+}
 
 // Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
