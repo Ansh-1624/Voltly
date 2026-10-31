@@ -22,9 +22,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Initialize database with seed dataset if empty
-if (db.getUsers().length === 0) {
-  console.log('🌱 Initializing database with seed dataset...');
-  runSeed(db);
+try {
+  if (db.getUsers().length === 0) {
+    console.log('🌱 Initializing database with seed dataset...');
+    runSeed(db);
+  }
+} catch (seedErr) {
+  console.warn('Seed initialization error (ignoring for serverless runtime):', seedErr);
 }
 
 // Health check with Supabase verification (supports both /api/health and /health)
