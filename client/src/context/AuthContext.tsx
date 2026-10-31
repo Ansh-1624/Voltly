@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (email: string, name?: string, role?: UserRole) => Promise<void>;
   loginAsDemo: (email: string) => Promise<void>;
   loginWithGoogle: (email: string, name: string, role?: UserRole) => Promise<void>;
+  loginAsAdmin: (email: string, passcode: string) => Promise<void>;
   logout: () => void;
   switchRole: (role: UserRole) => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -91,6 +92,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginAsAdmin = async (email: string, passcode: string) => {
+    setLoading(true);
+    try {
+      const data = await api.adminLogin(email, passcode);
+      localStorage.setItem('voltly_token', data.token);
+      setToken(data.token);
+      setUser(data.user);
+      await refreshProfile();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('voltly_token');
     setToken(null);
@@ -126,6 +140,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         loginAsDemo,
         loginWithGoogle,
+        loginAsAdmin,
         logout,
         switchRole,
         refreshProfile,

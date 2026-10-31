@@ -40,6 +40,51 @@ authRouter.post('/login', (req, res) => {
 });
 
 /**
+ * Admin Credentials Login: Validates admin email & security passcode
+ */
+authRouter.post('/admin-login', (req, res) => {
+  const { email, password, passcode } = req.body;
+  const key = (password || passcode || '').trim();
+
+  if (!email || !key) {
+    return res.status(400).json({ error: 'Admin email and security passcode are required' });
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const validPasscodes = [
+    process.env.ADMIN_SECURITY_KEY,
+    'voltly2026',
+    'admin123',
+    'admin2026',
+  ].filter(Boolean);
+
+  if (!validPasscodes.includes(key)) {
+    return res.status(401).json({ error: 'Invalid admin security passcode. Access denied.' });
+  }
+
+  let user = db.getUserByEmail(normalizedEmail);
+  if (!user) {
+    user = {
+      id: crypto.randomUUID(),
+      name: 'Voltly Compliance Officer',
+      email: normalizedEmail,
+      role: 'ADMIN',
+      created_at: new Date().toISOString(),
+    };
+    db.addUser(user);
+  } else if (user.role !== 'ADMIN') {
+    user = db.updateUser(user.id, { role: 'ADMIN' }) || user;
+  }
+
+  const token = generateToken(user);
+  return res.json({
+    user,
+    token,
+    message: 'Admin authorization granted',
+  });
+});
+
+/**
  * Demo Login: One-click sign-in for pre-seeded host, guest, or admin accounts
  */
 authRouter.post('/demo-login', (req, res) => {

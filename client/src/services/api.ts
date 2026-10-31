@@ -38,6 +38,10 @@ export const api = {
     method: 'POST',
     body: JSON.stringify({ email, name, role }),
   }),
+  adminLogin: (email: string, passcode: string) => request<{ user: any; token: string }>('/auth/admin-login', {
+    method: 'POST',
+    body: JSON.stringify({ email, passcode }),
+  }),
   getMe: () => request<{ user: any; hostProfile: any; guestProfile: any; guestVehicle: any }>('/auth/me'),
   updateRole: (role: string) => request<{ user: any; token: string }>('/auth/role', {
     method: 'PATCH',
