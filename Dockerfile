@@ -40,3 +40,4 @@ WORKDIR /app/server
 EXPOSE 5001
 
 CMD ["node", "dist/index.js"]
+
