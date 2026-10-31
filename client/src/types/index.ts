@@ -22,6 +22,7 @@ export interface User {
   email: string;
   phone?: string;
   role: UserRole;
+  role_selected?: boolean;
   created_at: string;
 }
 

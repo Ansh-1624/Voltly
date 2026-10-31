@@ -72,9 +72,14 @@ export class Database {
         this.isInMemory = true;
       }
 
+      const baseSeedPath = path.join(__dirname, '../../data/voltly.json');
       if (!this.isInMemory && fs.existsSync(this.filePath)) {
         const raw = fs.readFileSync(this.filePath, 'utf-8');
         this.data = { ...this.getDefaultSchema(), ...JSON.parse(raw) };
+      } else if (fs.existsSync(baseSeedPath)) {
+        const raw = fs.readFileSync(baseSeedPath, 'utf-8');
+        this.data = { ...this.getDefaultSchema(), ...JSON.parse(raw) };
+        this.save();
       } else {
         this.save();
       }

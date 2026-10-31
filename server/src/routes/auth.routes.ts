@@ -110,35 +110,48 @@ authRouter.post('/demo-login', (req, res) => {
  * Google OAuth Login or Register
  */
 authRouter.post('/google', (req, res) => {
-  const { credential, email, name, role = 'GUEST' } = req.body;
+  const { credential, email, name, role } = req.body;
 
-  if (!email || !name) {
-    return res.status(400).json({ error: 'Email and name are required' });
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
   }
 
   const normalizedEmail = email.toLowerCase().trim();
   const isAdmin = normalizedEmail === 'admin@voltly.com' || normalizedEmail.endsWith('@voltly-admin.com');
 
   let user = db.getUserByEmail(normalizedEmail);
+  let isNewUser = false;
+
   if (!user) {
-    // Create new user
+    // Brand new user registration
+    isNewUser = true;
     user = {
       id: crypto.randomUUID(),
-      name: isAdmin ? (name || 'Voltly Compliance Officer') : name,
+      name: isAdmin ? (name || 'Voltly Compliance Officer') : (name || normalizedEmail.split('@')[0]),
       email: normalizedEmail,
-      role: isAdmin ? 'ADMIN' : (role as UserRole),
+      role: isAdmin ? 'ADMIN' : (role ? (role as UserRole) : 'GUEST'),
+      role_selected: isAdmin ? true : (role ? true : false),
       google_id: credential ? `google-${normalizedEmail}` : undefined,
       created_at: new Date().toISOString(),
     };
     db.addUser(user);
-  } else if (isAdmin && user.role !== 'ADMIN') {
-    user = db.updateUser(user.id, { role: 'ADMIN' }) || user;
+  } else {
+    // Existing (pre-registered) user:
+    // Retain their registered role and prevent asking Host/Guest again
+    if (user.role_selected === undefined) {
+      user.role_selected = true;
+      db.updateUser(user.id, { role_selected: true });
+    }
+    if (isAdmin && user.role !== 'ADMIN') {
+      user = db.updateUser(user.id, { role: 'ADMIN', role_selected: true }) || user;
+    }
   }
 
   const token = generateToken(user);
   return res.json({
     user,
     token,
+    isNewUser,
   });
 });
 
@@ -168,7 +181,10 @@ authRouter.patch('/role', authMiddleware, (req: AuthenticatedRequest, res: Respo
     return res.status(400).json({ error: 'Valid role (HOST, GUEST, ADMIN) is required' });
   }
 
-  const updatedUser = db.updateUser(req.user!.id, { role: role as UserRole });
+  const updatedUser = db.updateUser(req.user!.id, {
+    role: role as UserRole,
+    role_selected: true,
+  });
   if (!updatedUser) {
     return res.status(404).json({ error: 'User not found' });
   }

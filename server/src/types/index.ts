@@ -39,6 +39,7 @@ export interface User {
   phone?: string;
   google_id?: string;
   role: UserRole;
+  role_selected?: boolean;
   created_at: string;
 }
 

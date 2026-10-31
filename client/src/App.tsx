@@ -48,11 +48,11 @@ export const MainApp: React.FC = () => {
     );
   }
 
-  // Step 2: User is authenticated with Google, but has not completed either profile yet
-  // Present dedicated Role Selection screen: Choose EV Driver (Guest) or Household Host
-  const hasCompletedProfile = Boolean(hostProfile || guestProfile);
+  // Step 2: ONLY for brand-new users who have not selected their role yet.
+  // Pre-registered users already have their role and will NEVER be asked Host or Guest again.
+  const isPreRegistered = user.role_selected !== false;
 
-  if (!hasCompletedProfile && !forceOnboarding) {
+  if (!isPreRegistered && !forceOnboarding) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col">
         <Navbar />
