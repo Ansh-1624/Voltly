@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  voltly-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - NODE_ENV=production
+      - JWT_SECRET=voltly_super_secure_jwt_secret_2026
+      - DATABASE_URL=postgresql://voltly:voltly_pass@postgres:5432/voltly
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgis/postgis:15-3.3-alpine
+    environment:
+      POSTGRES_USER: voltly
+      POSTGRES_PASSWORD: voltly_pass
+      POSTGRES_DB: voltly
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
