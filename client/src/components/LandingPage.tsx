@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Lock,
   KeyRound,
+  AlertCircle,
 } from 'lucide-react';
 
 export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
@@ -25,6 +26,7 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [notFoundPrompt, setNotFoundPrompt] = useState(false);
+  const [existsPrompt, setExistsPrompt] = useState(false);
 
   const handleGoogleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +34,7 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
     setAuthLoading(true);
     setAuthError(null);
     setNotFoundPrompt(false);
+    setExistsPrompt(false);
 
     const isLogin = authModal.mode === 'LOGIN';
     try {
@@ -41,6 +44,9 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
     } catch (err: any) {
       if (err.message && err.message.includes('No Voltly account found')) {
         setNotFoundPrompt(true);
+      }
+      if (err.message && (err.message.includes('already exists') || err.message.includes('account exist'))) {
+        setExistsPrompt(true);
       }
       setAuthError(err.message || (isLogin ? 'Failed to log in. Please check your email.' : 'Failed to register account.'));
     } finally {
@@ -265,8 +271,11 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                 </div>
 
                 {authError && (
-                  <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium space-y-2">
-                    <p>{authError}</p>
+                  <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium space-y-2">
+                    <p className="flex items-center gap-1.5 font-bold">
+                      <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                      <span>{authError}</span>
+                    </p>
                     {notFoundPrompt && (
                       <button
                         type="button"
@@ -275,9 +284,22 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                           setNotFoundPrompt(false);
                           openAuthModal('SIGNUP');
                         }}
-                        className="text-xs font-bold text-rose-800 underline hover:text-rose-900 block"
+                        className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline block"
                       >
                         Click here to create a new account with this email →
+                      </button>
+                    )}
+                    {existsPrompt && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAuthError(null);
+                          setExistsPrompt(false);
+                          openAuthModal('LOGIN');
+                        }}
+                        className="text-xs font-bold text-blue-700 hover:text-blue-800 underline block"
+                      >
+                        This account exists. Click here to Log In instead →
                       </button>
                     )}
                   </div>

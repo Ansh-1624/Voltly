@@ -144,7 +144,15 @@ authRouter.post('/google', (req, res) => {
     };
     db.addUser(user);
   } else {
-    // Existing (pre-registered) user:
+    // If user is trying to Sign Up with an account that already exists, prompt them to Log In
+    if (mode === 'signup') {
+      return res.status(409).json({
+        error: 'This account already exists. Please log in instead.',
+        alreadyExists: true,
+      });
+    }
+
+    // Existing (pre-registered) user logging in:
     // Retain their registered role and prevent asking Host/Guest again
     if (user.role_selected === undefined) {
       user.role_selected = true;
