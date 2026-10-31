@@ -82,7 +82,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 const PORT = process.env.PORT || 5001;
 
-if (process.env.NODE_ENV !== 'test') {
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`⚡ Voltly Server active on http://localhost:${PORT}`);
   });

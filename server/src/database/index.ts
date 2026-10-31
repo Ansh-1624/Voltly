@@ -36,7 +36,8 @@ export class Database {
 
   constructor(filePath?: string, inMemory: boolean = false) {
     this.isInMemory = inMemory;
-    this.filePath = filePath || path.join(__dirname, '../../data/voltly.json');
+    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    this.filePath = filePath || (isServerless ? '/tmp/voltly.json' : path.join(__dirname, '../../data/voltly.json'));
     this.data = this.getDefaultSchema();
     if (!inMemory) {
       this.load();
@@ -62,10 +63,16 @@ export class Database {
   private load() {
     try {
       const dir = path.dirname(this.filePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
+      try {
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+      } catch (dirErr) {
+        console.warn('Could not create directory for database file, operating in-memory:', dirErr);
+        this.isInMemory = true;
       }
-      if (fs.existsSync(this.filePath)) {
+
+      if (!this.isInMemory && fs.existsSync(this.filePath)) {
         const raw = fs.readFileSync(this.filePath, 'utf-8');
         this.data = { ...this.getDefaultSchema(), ...JSON.parse(raw) };
       } else {
@@ -86,7 +93,8 @@ export class Database {
       }
       fs.writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
     } catch (err) {
-      console.error('Failed to persist database:', err);
+      console.warn('Filesystem unavailable for writing. Operating in-memory mode:', err);
+      this.isInMemory = true;
     }
   }
 

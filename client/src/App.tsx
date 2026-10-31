@@ -7,12 +7,20 @@ import { HostOnboarding } from './components/HostOnboarding';
 import { GuestDashboard } from './components/GuestDashboard';
 import { GuestOnboarding } from './components/GuestOnboarding';
 import { AdminDashboard } from './components/AdminDashboard';
-import { RefreshCw, Zap, Car, Bike, ShieldCheck } from 'lucide-react';
+import { RefreshCw, Zap, Car, ShieldCheck, Mail, UserCheck } from 'lucide-react';
+import { UserRole } from './types';
 
 export const MainApp: React.FC = () => {
-  const { user, loading, hostProfile, guestProfile, switchRole, loginAsDemo } = useAuth();
+  const { user, loading, hostProfile, guestProfile, switchRole, login } = useAuth();
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [forceOnboarding, setForceOnboarding] = useState(false);
+
+  // Sign in / Sign up form state
+  const [selectedRole, setSelectedRole] = useState<UserRole>('GUEST');
+  const [authName, setAuthName] = useState('');
+  const [authEmail, setAuthEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -25,6 +33,21 @@ export const MainApp: React.FC = () => {
     );
   }
 
+  const handleStartSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authEmail) return;
+    setSubmitting(true);
+    setAuthError(null);
+    try {
+      await login(authEmail, authName || authEmail.split('@')[0], selectedRole);
+      setShowRoleSelection(false);
+    } catch (err: any) {
+      setAuthError(err.message || 'Failed to sign in. Please verify your connection.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Not logged in -> Show Landing Page
   if (!user) {
     return (
@@ -32,60 +55,103 @@ export const MainApp: React.FC = () => {
         <Navbar />
         <LandingPage onGetStarted={() => setShowRoleSelection(true)} />
 
-        {/* Role Selection Dialog */}
+        {/* Sign In / Sign Up Dialog */}
         {showRoleSelection && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
             <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6">
               <div className="text-center">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto mb-3">
                   <Zap className="w-5 h-5 text-emerald-600" />
                 </div>
-                <h3 className="text-lg font-black text-slate-900">Choose Your Role on Voltly</h3>
+                <h3 className="text-xl font-black text-slate-900">Get Started with Voltly</h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  You can switch between Host and Guest roles anytime with the same account.
+                  Join the peer-to-peer EV charging community.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-3">
+              {authError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
+                  {authError}
+                </div>
+              )}
+
+              {/* Role Picker */}
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={async () => {
-                    setShowRoleSelection(false);
-                    await loginAsDemo('vikram.guest@voltly.com');
-                  }}
-                  className="p-4 rounded-2xl border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50/50 text-left transition-all group"
+                  type="button"
+                  onClick={() => setSelectedRole('GUEST')}
+                  className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                    selectedRole === 'GUEST'
+                      ? 'border-blue-600 bg-blue-50/60 text-blue-900'
+                      : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      <Car className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">EV Guest / Driver</p>
-                      <p className="text-[11px] text-slate-500">I need verified, reachable charging for my electric vehicle.</p>
-                    </div>
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center mb-1.5">
+                    <Car className="w-4 h-4" />
                   </div>
+                  <p className="text-xs font-bold text-slate-900">EV Driver / Guest</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Find & charge at verified sockets</p>
                 </button>
 
                 <button
-                  onClick={async () => {
-                    setShowRoleSelection(false);
-                    await loginAsDemo('rajesh.host@voltly.com');
-                  }}
-                  className="p-4 rounded-2xl border-2 border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50 text-left transition-all group"
+                  type="button"
+                  onClick={() => setSelectedRole('HOST')}
+                  className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                    selectedRole === 'HOST'
+                      ? 'border-emerald-600 bg-emerald-50/60 text-emerald-900'
+                      : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                      <Zap className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">Household Host</p>
-                      <p className="text-[11px] text-slate-500">I have a 16A socket and want to earn by sharing power.</p>
-                    </div>
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center mb-1.5">
+                    <Zap className="w-4 h-4" />
                   </div>
+                  <p className="text-xs font-bold text-slate-900">Household Host</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Share your 16A socket & earn</p>
                 </button>
               </div>
 
-              <div className="pt-2 text-center">
+              {/* Input Form */}
+              <form onSubmit={handleStartSubmit} className="space-y-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Your Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rahul Sharma"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
                 <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-1.5"
+                >
+                  {submitting ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <span>Continue as {selectedRole === 'GUEST' ? 'EV Driver' : 'Household Host'}</span>
+                  )}
+                </button>
+              </form>
+
+              <div className="pt-1 text-center">
+                <button
+                  type="button"
                   onClick={() => setShowRoleSelection(false)}
                   className="text-xs text-slate-400 hover:text-slate-600 font-semibold"
                 >
@@ -99,53 +165,45 @@ export const MainApp: React.FC = () => {
     );
   }
 
-  // Logged in: Render based on role
+  // Logged in as ADMIN
+  if (user.role === 'ADMIN') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <Navbar />
+        <main className="flex-1">
+          <AdminDashboard />
+        </main>
+      </div>
+    );
+  }
+
+  // Logged in as HOST
+  if (user.role === 'HOST') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <Navbar />
+        <main className="flex-1">
+          {!hostProfile || forceOnboarding ? (
+            <HostOnboarding onComplete={() => setForceOnboarding(false)} />
+          ) : (
+            <HostDashboard onNeedOnboarding={() => setForceOnboarding(true)} />
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  // Logged in as GUEST
   return (
-    <div className="min-h-screen bg-slate-50/50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
-
       <main className="flex-1">
-        {user.role === 'ADMIN' && <AdminDashboard />}
-
-        {user.role === 'HOST' && (
-          <>
-            {!hostProfile || forceOnboarding ? (
-              <HostOnboarding onComplete={() => setForceOnboarding(false)} />
-            ) : (
-              <HostDashboard onNeedOnboarding={() => setForceOnboarding(true)} />
-            )}
-          </>
-        )}
-
-        {user.role === 'GUEST' && (
-          <>
-            {!guestProfile || forceOnboarding ? (
-              <GuestOnboarding onComplete={() => setForceOnboarding(false)} />
-            ) : (
-              <GuestDashboard onNeedOnboarding={() => setForceOnboarding(true)} />
-            )}
-          </>
+        {!guestProfile || forceOnboarding ? (
+          <GuestOnboarding onComplete={() => setForceOnboarding(false)} />
+        ) : (
+          <GuestDashboard onNeedOnboarding={() => setForceOnboarding(true)} />
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">Voltly</span>
-            <span>•</span>
-            <span>AI-Powered Peer-to-Peer EV Charging Platform</span>
-          </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Deterministic Safety Logic</span>
-            <span>•</span>
-            <span>Zero In-App Platform Fees</span>
-            <span>•</span>
-            <span>Direct P2P Settlement</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
-

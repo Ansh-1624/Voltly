@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Zap, ShieldCheck, UserCheck, ChevronDown, LogOut, ArrowRightLeft, Menu, X } from 'lucide-react';
+import { Zap, LogOut, Menu, X } from 'lucide-react';
 import { UserRole } from '../types';
 
 export const Navbar: React.FC = () => {
-  const { user, logout, switchRole, loginAsDemo } = useAuth();
-  const [demoMenuOpen, setDemoMenuOpen] = useState(false);
+  const { user, logout, switchRole } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const demoAccounts = [
-    { label: 'Rajesh Sharma (Approved Host)', email: 'rajesh.host@voltly.com', role: 'HOST' },
-    { label: 'Priya Patel (Approved Host)', email: 'priya.host@voltly.com', role: 'HOST' },
-    { label: 'Arun Mehta (Pending Host)', email: 'arun.host@voltly.com', role: 'HOST' },
-    { label: 'Vikram Rao (Guest - Nexon EV)', email: 'vikram.guest@voltly.com', role: 'GUEST' },
-    { label: 'Ananya Iyer (Guest - Ather 450X)', email: 'ananya.guest@voltly.com', role: 'GUEST' },
-    { label: 'Compliance Admin', email: 'admin@voltly.com', role: 'ADMIN' },
-  ];
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-sm">
@@ -40,57 +30,7 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop Controls */}
         <div className="hidden sm:flex items-center gap-2 sm:gap-3">
-          {/* Quick Demo Switcher */}
-          <div className="relative">
-            <button
-              onClick={() => setDemoMenuOpen(!demoMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-blue-600" />
-              <span>Demo Accounts</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-
-            {demoMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="px-3 py-1.5 border-b border-slate-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Switch Test Account
-                  </p>
-                </div>
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.email}
-                    onClick={() => {
-                      loginAsDemo(acc.email);
-                      setDemoMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 flex items-center justify-between ${
-                      user?.email === acc.email ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-slate-700'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-medium">{acc.label}</p>
-                      <p className="text-[10px] text-slate-400">{acc.email}</p>
-                    </div>
-                    <span
-                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        acc.role === 'HOST'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : acc.role === 'ADMIN'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}
-                    >
-                      {acc.role}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {user && (
+          {user ? (
             <>
               {/* Role Toggle Switcher */}
               <div className="flex items-center bg-slate-100 p-1 rounded-lg">
@@ -141,20 +81,11 @@ export const Navbar: React.FC = () => {
                 </button>
               </div>
             </>
-          )}
+          ) : null}
         </div>
 
         {/* Mobile Compact Controls (Visible on < 640px) */}
         <div className="flex sm:hidden items-center gap-1.5">
-          {/* Quick Demo Button */}
-          <button
-            onClick={() => setDemoMenuOpen(!demoMenuOpen)}
-            className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
-            title="Demo Accounts"
-          >
-            <UserCheck className="w-4 h-4 text-blue-600" />
-          </button>
-
           {user && (
             <>
               {/* Compact Role Pill */}
@@ -257,37 +188,6 @@ export const Navbar: React.FC = () => {
               <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Demo Accounts Dropdown */}
-      {demoMenuOpen && (
-        <div className="sm:hidden border-t border-slate-200 bg-white p-3 space-y-2 shadow-lg max-h-[70vh] overflow-y-auto">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Switch Test Account
-          </p>
-          <div className="divide-y divide-slate-100">
-            {demoAccounts.map((acc) => (
-              <button
-                key={acc.email}
-                onClick={() => {
-                  loginAsDemo(acc.email);
-                  setDemoMenuOpen(false);
-                }}
-                className={`w-full text-left py-2.5 px-2 text-xs flex items-center justify-between ${
-                  user?.email === acc.email ? 'bg-emerald-50 text-emerald-800 font-bold rounded-lg' : 'text-slate-700'
-                }`}
-              >
-                <div>
-                  <p className="font-medium text-xs">{acc.label}</p>
-                  <p className="text-[10px] text-slate-400">{acc.email}</p>
-                </div>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100">
-                  {acc.role}
-                </span>
-              </button>
-            ))}
           </div>
         </div>
       )}

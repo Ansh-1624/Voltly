@@ -9,6 +9,7 @@ interface AuthContextType {
   guestVehicle: GuestVehicle | null;
   token: string | null;
   loading: boolean;
+  login: (email: string, name?: string, role?: UserRole) => Promise<void>;
   loginAsDemo: (email: string) => Promise<void>;
   loginWithGoogle: (email: string, name: string, role?: UserRole) => Promise<void>;
   logout: () => void;
@@ -50,6 +51,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }
   }, [token]);
+
+  const login = async (email: string, name?: string, role: UserRole = 'GUEST') => {
+    setLoading(true);
+    try {
+      const data = await api.login(email, name, role);
+      localStorage.setItem('voltly_token', data.token);
+      setToken(data.token);
+      setUser(data.user);
+      await refreshProfile();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loginAsDemo = async (email: string) => {
     setLoading(true);
@@ -109,6 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         guestVehicle,
         token,
         loading,
+        login,
         loginAsDemo,
         loginWithGoogle,
         logout,

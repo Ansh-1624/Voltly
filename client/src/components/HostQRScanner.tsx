@@ -130,18 +130,6 @@ export const HostQRScanner: React.FC<HostQRScannerProps> = ({ onSessionStarted, 
           <div id="qr-reader-container" className="w-full text-xs" />
         </div>
 
-        {/* 1-Click Instant Demo Check-in Helper */}
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={handleAutofillDemoToken}
-            className="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl border border-blue-200 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Auto-Detect & Authorize Arrived Guest</span>
-          </button>
-        </div>
-
         {/* Manual Token Fallback */}
         <div className="space-y-3 pt-3 border-t border-slate-100">
           <label className="block text-[11px] font-bold text-slate-700">

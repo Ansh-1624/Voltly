@@ -7,6 +7,34 @@ import { User, UserRole } from '../types';
 export const authRouter = Router();
 
 /**
+ * Email Sign In or Register
+ */
+authRouter.post('/login', (req, res) => {
+  const { email, name, role = 'GUEST' } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  let user = db.getUserByEmail(email);
+  if (!user) {
+    user = {
+      id: crypto.randomUUID(),
+      name: name || email.split('@')[0],
+      email,
+      role: role as UserRole,
+      created_at: new Date().toISOString(),
+    };
+    db.addUser(user);
+  }
+
+  const token = generateToken(user);
+  return res.json({
+    user,
+    token,
+  });
+});
+
+/**
  * Demo Login: One-click sign-in for pre-seeded host, guest, or admin accounts
  */
 authRouter.post('/demo-login', (req, res) => {

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
-  const { loginAsDemo, loginWithGoogle } = useAuth();
+  const { loginWithGoogle } = useAuth();
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleName, setGoogleName] = useState('');
   const [showManualLogin, setShowManualLogin] = useState(false);
@@ -73,43 +73,6 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                 />
                 <span>Sign in with Google</span>
               </button>
-            </div>
-
-            {/* Quick Demo Instant Access */}
-            <div className="mt-8 pt-8 border-t border-slate-100 max-w-xl mx-auto">
-              <p className="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider">
-                Instant Hackathon Demo Logins:
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <button
-                  onClick={() => loginAsDemo('vikram.guest@voltly.com')}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors font-medium flex items-center gap-1.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  Guest: Vikram (Nexon EV)
-                </button>
-                <button
-                  onClick={() => loginAsDemo('ananya.guest@voltly.com')}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors font-medium flex items-center gap-1.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  Guest: Ananya (Ather 450X)
-                </button>
-                <button
-                  onClick={() => loginAsDemo('rajesh.host@voltly.com')}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors font-medium flex items-center gap-1.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  Host: Rajesh (Indiranagar)
-                </button>
-                <button
-                  onClick={() => loginAsDemo('admin@voltly.com')}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors font-medium flex items-center gap-1.5"
-                >
-                  <span className="w-2 h-2 rounded-full bg-purple-500" />
-                  Admin Dashboard
-                </button>
-              </div>
             </div>
 
             {/* Manual Google modal / inline login */}
