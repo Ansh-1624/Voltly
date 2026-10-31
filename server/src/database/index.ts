@@ -28,6 +28,87 @@ export interface DatabaseSchema {
   session_bills: SessionBill[];
 }
 
+export const DEFAULT_VEHICLES: VehicleModel[] = [
+  {
+    id: 'vm-nexon-ev',
+    manufacturer: 'Tata Motors',
+    model: 'Nexon EV',
+    variant: 'Empowered Plus LR',
+    category: 'FOUR_WHEELER',
+    battery_capacity_kwh: 40.5,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 3.3,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 320,
+  },
+  {
+    id: 'vm-mg-zs',
+    manufacturer: 'MG',
+    model: 'ZS EV',
+    variant: 'Exclusive Pro',
+    category: 'FOUR_WHEELER',
+    battery_capacity_kwh: 50.3,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 3.3,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 380,
+  },
+  {
+    id: 'vm-tiago-ev',
+    manufacturer: 'Tata Motors',
+    model: 'Tiago EV',
+    variant: 'XT LR',
+    category: 'FOUR_WHEELER',
+    battery_capacity_kwh: 24.0,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 3.3,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 210,
+  },
+  {
+    id: 'vm-ather-450x',
+    manufacturer: 'Ather Energy',
+    model: '450X',
+    variant: 'Gen 3 Apex',
+    category: 'TWO_WHEELER',
+    battery_capacity_kwh: 3.7,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 1.4,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 110,
+  },
+  {
+    id: 'vm-ola-s1-pro',
+    manufacturer: 'Ola Electric',
+    model: 'S1 Pro',
+    variant: 'Gen 2',
+    category: 'TWO_WHEELER',
+    battery_capacity_kwh: 4.0,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 1.5,
+    vehicle_connector: '16A_3PIN',
+    specification_verified: true,
+    typical_range_km: 145,
+  },
+  {
+    id: 'vm-tvs-iqube',
+    manufacturer: 'TVS',
+    model: 'iQube',
+    variant: 'ST 5.1 kWh',
+    category: 'TWO_WHEELER',
+    battery_capacity_kwh: 5.1,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 1.0,
+    vehicle_connector: '16A_3PIN',
+    specification_verified: true,
+    typical_range_km: 150,
+  },
+];
+
 export class Database {
   private data: DatabaseSchema;
   private filePath: string;
@@ -50,7 +131,7 @@ export class Database {
       host_profiles: [],
       host_pods: [],
       guest_profiles: [],
-      vehicle_models: [],
+      vehicle_models: [...DEFAULT_VEHICLES],
       guest_vehicles: [],
       recommendations: [],
       recommendation_feedback: [],
@@ -204,7 +285,13 @@ export class Database {
     return profile;
   }
 
-  public getVehicleModels() { return this.data.vehicle_models; }
+  public getVehicleModels() {
+    if (!this.data.vehicle_models || this.data.vehicle_models.length === 0) {
+      this.data.vehicle_models = [...DEFAULT_VEHICLES];
+      this.save();
+    }
+    return this.data.vehicle_models;
+  }
   public getVehicleModelById(id: string) { return this.data.vehicle_models.find(v => v.id === id); }
   public addVehicleModel(model: VehicleModel) {
     this.data.vehicle_models.push(model);

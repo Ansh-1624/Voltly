@@ -37,8 +37,9 @@
       "name": "Vikram Rao (Nexon EV)",
       "email": "vikram.guest@voltly.com",
       "phone": "+91 99001 45678",
-      "role": "GUEST",
-      "created_at": "2026-10-31T07:56:00.551Z"
+      "role": "ADMIN",
+      "created_at": "2026-10-31T07:56:00.551Z",
+      "role_selected": true
     },
     {
       "id": "user-guest-2",

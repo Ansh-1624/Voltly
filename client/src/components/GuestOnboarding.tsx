@@ -21,6 +21,87 @@ import {
 } from 'lucide-react';
 import { VehicleModel, VehicleCategory } from '../types';
 
+export const DEFAULT_VEHICLE_MODELS: VehicleModel[] = [
+  {
+    id: 'vm-nexon-ev',
+    manufacturer: 'Tata Motors',
+    model: 'Nexon EV',
+    variant: 'Empowered Plus LR',
+    category: 'FOUR_WHEELER',
+    battery_capacity_kwh: 40.5,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 3.3,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 320,
+  },
+  {
+    id: 'vm-mg-zs',
+    manufacturer: 'MG',
+    model: 'ZS EV',
+    variant: 'Exclusive Pro',
+    category: 'FOUR_WHEELER',
+    battery_capacity_kwh: 50.3,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 3.3,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 380,
+  },
+  {
+    id: 'vm-tiago-ev',
+    manufacturer: 'Tata Motors',
+    model: 'Tiago EV',
+    variant: 'XT LR',
+    category: 'FOUR_WHEELER',
+    battery_capacity_kwh: 24.0,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 3.3,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 210,
+  },
+  {
+    id: 'vm-ather-450x',
+    manufacturer: 'Ather Energy',
+    model: '450X',
+    variant: 'Gen 3 Apex',
+    category: 'TWO_WHEELER',
+    battery_capacity_kwh: 3.7,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 1.4,
+    vehicle_connector: 'IEC_62196_TYPE_2',
+    specification_verified: true,
+    typical_range_km: 110,
+  },
+  {
+    id: 'vm-ola-s1-pro',
+    manufacturer: 'Ola Electric',
+    model: 'S1 Pro',
+    variant: 'Gen 2',
+    category: 'TWO_WHEELER',
+    battery_capacity_kwh: 4.0,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 1.5,
+    vehicle_connector: '16A_3PIN',
+    specification_verified: true,
+    typical_range_km: 145,
+  },
+  {
+    id: 'vm-tvs-iqube',
+    manufacturer: 'TVS',
+    model: 'iQube',
+    variant: 'ST 5.1 kWh',
+    category: 'TWO_WHEELER',
+    battery_capacity_kwh: 5.1,
+    ac_charging_supported: true,
+    max_ac_charging_power_kw: 1.0,
+    vehicle_connector: '16A_3PIN',
+    specification_verified: true,
+    typical_range_km: 150,
+  },
+];
+
 export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const { user, refreshProfile } = useAuth();
 
@@ -29,7 +110,7 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
   const [error, setError] = useState<string | null>(null);
 
   // Catalogue
-  const [catalogue, setCatalogue] = useState<VehicleModel[]>([]);
+  const [catalogue, setCatalogue] = useState<VehicleModel[]>(DEFAULT_VEHICLE_MODELS);
   const [selectedCategory, setSelectedCategory] = useState<VehicleCategory>('FOUR_WHEELER');
   const [selectedModelId, setSelectedModelId] = useState<string>('vm-nexon-ev');
 
@@ -47,18 +128,15 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
   const [evseVehicleConnector, setEvseVehicleConnector] = useState('IEC_62196_TYPE_2');
 
   useEffect(() => {
-    api.getVehicleCatalogue().then((res) => {
-      setCatalogue(res.models);
-      // Auto-select first matching vehicle in category
-      const first = res.models.find((m) => m.category === selectedCategory);
-      if (first) {
-        setSelectedModelId(first.id);
-        setBatteryCapacityKwh(first.battery_capacity_kwh);
-        setMaxAcPowerKw(first.max_ac_charging_power_kw);
-        setVehicleConnector(first.vehicle_connector);
-        setEvseVehicleConnector(first.vehicle_connector);
-      }
-    });
+    api.getVehicleCatalogue()
+      .then((res) => {
+        if (res?.models && res.models.length > 0) {
+          setCatalogue(res.models);
+        }
+      })
+      .catch((err) => {
+        console.warn('API catalogue fetch fallback to defaults:', err);
+      });
   }, [selectedCategory]);
 
   const handleSelectModel = (id: string) => {
