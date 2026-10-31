@@ -9,7 +9,7 @@ export interface AuthenticatedRequest extends Request {
   user?: User;
 }
 
-export function authMiddleware(
+export async function authMiddleware(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
@@ -21,11 +21,35 @@ export function authMiddleware(
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: UserRole };
-    const user = db.getUserById(decoded.userId);
+    const decoded = jwt.verify(token, JWT_SECRET) as {
+      userId: string;
+      role: UserRole;
+      email?: string;
+      name?: string;
+    };
+
+    let user = db.getUserById(decoded.userId);
+    if (!user) {
+      user = (await db.getUserByIdAsync(decoded.userId)) || undefined;
+    }
+
+    // Serverless cold-start resilience: reconstruct from cryptographically verified token claims
+    if (!user && decoded.userId && decoded.email) {
+      user = {
+        id: decoded.userId,
+        name: decoded.name || decoded.email.split('@')[0],
+        email: decoded.email,
+        role: decoded.role,
+        role_selected: true,
+        created_at: new Date().toISOString(),
+      };
+      db.addUser(user);
+    }
+
     if (!user) {
       return res.status(401).json({ error: 'User no longer exists' });
     }
+
     req.user = user;
     next();
   } catch (err) {

@@ -42,7 +42,7 @@ authRouter.post('/login', (req, res) => {
 /**
  * Admin Credentials Login: Validates admin email & security passcode
  */
-authRouter.post('/admin-login', (req, res) => {
+authRouter.post('/admin-login', async (req, res) => {
   const { email, password, passcode } = req.body;
   const key = (password || passcode || '').trim();
 
@@ -62,7 +62,7 @@ authRouter.post('/admin-login', (req, res) => {
     return res.status(401).json({ error: 'Invalid admin security passcode. Access denied.' });
   }
 
-  let user = db.getUserByEmail(normalizedEmail);
+  let user = await db.getUserByEmailAsync(normalizedEmail);
   if (!user) {
     user = {
       id: crypto.randomUUID(),
@@ -87,13 +87,13 @@ authRouter.post('/admin-login', (req, res) => {
 /**
  * Demo Login: One-click sign-in for pre-seeded host, guest, or admin accounts
  */
-authRouter.post('/demo-login', (req, res) => {
+authRouter.post('/demo-login', async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
 
-  const user = db.getUserByEmail(email);
+  const user = await db.getUserByEmailAsync(email);
   if (!user) {
     return res.status(404).json({ error: 'User not found in demo database' });
   }
@@ -109,7 +109,7 @@ authRouter.post('/demo-login', (req, res) => {
 /**
  * Google OAuth Login or Register
  */
-authRouter.post('/google', (req, res) => {
+authRouter.post('/google', async (req, res) => {
   const { credential, email, name, role, mode } = req.body;
 
   if (!email) {
@@ -119,7 +119,7 @@ authRouter.post('/google', (req, res) => {
   const normalizedEmail = email.toLowerCase().trim();
   const isAdmin = normalizedEmail === 'admin@voltly.com' || normalizedEmail.endsWith('@voltly-admin.com');
 
-  let user = db.getUserByEmail(normalizedEmail);
+  let user = await db.getUserByEmailAsync(normalizedEmail);
   let isNewUser = false;
 
   if (!user) {

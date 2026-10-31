@@ -21,7 +21,7 @@
       "name": "Priya Patel",
       "email": "priya.host@voltly.com",
       "phone": "+91 98802 23456",
-      "role": "GUEST",
+      "role": "HOST",
       "created_at": "2026-10-31T07:56:00.551Z"
     },
     {
@@ -48,6 +48,24 @@
       "phone": "+91 99002 56789",
       "role": "GUEST",
       "created_at": "2026-10-31T07:56:00.551Z"
+    },
+    {
+      "id": "user-guest-arpita",
+      "name": "Arpita Swain",
+      "email": "swainarpita28@gmail.com",
+      "phone": "+91 98765 43210",
+      "role": "GUEST",
+      "role_selected": true,
+      "created_at": "2026-10-31T11:59:54.906Z"
+    },
+    {
+      "id": "user-guest-ansh",
+      "name": "Ansh Goyal",
+      "email": "goyalansh994@gmail.com",
+      "phone": "+91 98765 00000",
+      "role": "GUEST",
+      "role_selected": true,
+      "created_at": "2026-10-31T11:59:54.906Z"
     }
   ],
   "host_profiles": [
@@ -250,6 +268,18 @@
       "user_id": "user-admin-1",
       "vehicle_category": "FOUR_WHEELER",
       "created_at": "2026-10-31T10:39:20.444Z"
+    },
+    {
+      "id": "gp-arpita",
+      "user_id": "user-guest-arpita",
+      "vehicle_category": "FOUR_WHEELER",
+      "created_at": "2026-10-31T11:59:54.906Z"
+    },
+    {
+      "id": "gp-ansh",
+      "user_id": "user-guest-ansh",
+      "vehicle_category": "FOUR_WHEELER",
+      "created_at": "2026-10-31T11:59:54.906Z"
     }
   ],
   "vehicle_models": [
@@ -334,20 +364,6 @@
   ],
   "guest_vehicles": [
     {
-      "id": "gv-1",
-      "guest_id": "gp-1",
-      "vehicle_model_id": "vm-nexon-ev",
-      "battery_capacity_kwh": 40.5,
-      "vehicle_connector": "IEC_62196_TYPE_2",
-      "max_ac_power_kw": 3.3,
-      "ac_charging_supported": true,
-      "evse_make_model": "Tata Portable AC EVSE Cable",
-      "evse_supply_plug": "16A_3PIN",
-      "evse_rated_power_kw": 3.3,
-      "evse_vehicle_connector": "IEC_62196_TYPE_2",
-      "created_at": "2026-10-31T07:56:00.552Z"
-    },
-    {
       "id": "gv-2",
       "guest_id": "gp-2",
       "vehicle_model_id": "vm-ather-450x",
@@ -402,6 +418,48 @@
       "evse_rated_power_kw": 3.3,
       "evse_vehicle_connector": "IEC_62196_TYPE_2",
       "created_at": "2026-10-31T10:39:20.445Z"
+    },
+    {
+      "id": "41950319-346f-4ede-8b39-40120f163994",
+      "guest_id": "gp-1",
+      "vehicle_model_id": "vm-nexon-ev",
+      "battery_capacity_kwh": 40.5,
+      "vehicle_connector": "IEC_62196_TYPE_2",
+      "max_ac_power_kw": 3.3,
+      "ac_charging_supported": true,
+      "evse_make_model": "OEM Portable 16A Charging Cable",
+      "evse_supply_plug": "16A_3PIN",
+      "evse_rated_power_kw": 3.3,
+      "evse_vehicle_connector": "IEC_62196_TYPE_2",
+      "created_at": "2026-10-31T11:47:48.433Z"
+    },
+    {
+      "id": "gv-arpita",
+      "guest_id": "gp-arpita",
+      "vehicle_model_id": "vm-nexon-ev",
+      "battery_capacity_kwh": 40.5,
+      "vehicle_connector": "IEC_62196_TYPE_2",
+      "max_ac_power_kw": 3.3,
+      "ac_charging_supported": true,
+      "evse_make_model": "Tata Portable AC EVSE Cable",
+      "evse_supply_plug": "16A_3PIN",
+      "evse_rated_power_kw": 3.3,
+      "evse_vehicle_connector": "IEC_62196_TYPE_2",
+      "created_at": "2026-10-31T11:59:54.906Z"
+    },
+    {
+      "id": "gv-ansh",
+      "guest_id": "gp-ansh",
+      "vehicle_model_id": "vm-nexon-ev",
+      "battery_capacity_kwh": 40.5,
+      "vehicle_connector": "IEC_62196_TYPE_2",
+      "max_ac_power_kw": 3.3,
+      "ac_charging_supported": true,
+      "evse_make_model": "Tata Portable AC EVSE Cable",
+      "evse_supply_plug": "16A_3PIN",
+      "evse_rated_power_kw": 3.3,
+      "evse_vehicle_connector": "IEC_62196_TYPE_2",
+      "created_at": "2026-10-31T11:59:54.906Z"
     }
   ],
   "recommendations": [
@@ -479,6 +537,21 @@
       "why_selected_reason": "Guardian Angel selected Pod \"Koramangala Green Port #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 7.27 km away (~17 min travel time). Rate is locked at ₹0.49/min (₹9/kWh).",
       "ranking_score": 85.06,
       "created_at": "2026-10-31T10:39:31.543Z"
+    },
+    {
+      "id": "535dd773-6813-4182-afd6-bca356a4fc39",
+      "guest_id": "gp-1",
+      "selected_pod_id": "pod-2a",
+      "guest_lat": 12.9716,
+      "guest_lng": 77.5946,
+      "initial_battery_pct": 20,
+      "estimated_range_km": 28,
+      "estimated_distance_km": 7.27,
+      "estimated_eta_minutes": 17,
+      "status": "ACCEPTED",
+      "why_selected_reason": "Guardian Angel selected Pod \"Koramangala Green Port #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 7.27 km away (~17 min travel time). Rate is locked at ₹0.49/min (₹9/kWh).",
+      "ranking_score": 85.06,
+      "created_at": "2026-10-31T11:48:15.758Z"
     }
   ],
   "recommendation_feedback": [],
@@ -527,6 +600,18 @@
       "expires_at": "2026-10-31T10:50:20.243Z",
       "used_at": null,
       "created_at": "2026-10-31T10:40:20.243Z"
+    },
+    {
+      "id": "1ecf77d5-8d9f-4cea-b673-7d67c1fb9bbf",
+      "token_hash": "708d979a5cd8269fda748eb8d9b311e4688e1fa1f8c1e0da03073abccedb3083",
+      "raw_token_demo": "8c0e6c80f46b650ff61b744fee05500ab7aa02370f8ba04c78d3c8a8109244ba",
+      "guest_id": "gp-1",
+      "host_id": "hp-2",
+      "pod_id": "pod-2a",
+      "recommendation_id": "535dd773-6813-4182-afd6-bca356a4fc39",
+      "expires_at": "2026-10-31T11:58:43.911Z",
+      "used_at": null,
+      "created_at": "2026-10-31T11:48:43.911Z"
     }
   ],
   "charging_sessions": [

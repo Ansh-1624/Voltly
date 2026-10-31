@@ -6,16 +6,16 @@ import { GuestProfile, GuestVehicle, VehicleCategory, SocketType, VehicleConnect
 
 export const guestRouter = Router();
 
-guestRouter.use(authMiddleware);
-
 /**
- * Get pre-verified vehicle models catalogue
+ * Get pre-verified vehicle models catalogue (Public static metadata)
  */
 guestRouter.get('/catalogue', (_req, res) => {
   const models = db.getVehicleModels();
   return res.json({ models });
 });
 
+// All following guest operations require authentication
+guestRouter.use(authMiddleware);
 guestRouter.use(requireRole(['GUEST', 'ADMIN']));
 
 /**

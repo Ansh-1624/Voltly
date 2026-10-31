@@ -1,3 +1,7 @@
+process.env.DATABASE_URL =
+  process.env.DATABASE_URL ||
+  'postgresql://postgres.tficwfvajwthwoqqvaqy:mahiiaaruu%401624@aws-0-eu-west-1.pooler.supabase.com:6543/postgres';
+
 let appInstance: any;
 
 export default async function handler(req: any, res: any) {

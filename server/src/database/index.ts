@@ -13,6 +13,15 @@ import {
   ChargingSession,
   SessionBill,
 } from '../types';
+import {
+  syncAllFromSupabase,
+  findUserByEmailInSupabase,
+  findUserByIdInSupabase,
+  saveUserToSupabase,
+  saveGuestProfileToSupabase,
+  saveGuestVehicleToSupabase,
+  saveHostPodToSupabase,
+} from './supabase';
 
 export interface DatabaseSchema {
   users: User[];
@@ -210,13 +219,111 @@ export class Database {
     this.save();
   }
 
+  // --- Supabase Persistence & Hydration ---
+  public async syncFromSupabase() {
+    try {
+      const data = await syncAllFromSupabase();
+      if (!data) return;
+
+      if (data.users && data.users.length > 0) {
+        const existingEmails = new Set(this.data.users.map((u) => u.email.toLowerCase()));
+        for (const u of data.users) {
+          if (!existingEmails.has(u.email.toLowerCase())) {
+            this.data.users.push(u);
+          } else {
+            const idx = this.data.users.findIndex((x) => x.email.toLowerCase() === u.email.toLowerCase());
+            if (idx !== -1) {
+              this.data.users[idx] = { ...this.data.users[idx], ...u };
+            }
+          }
+        }
+      }
+
+      if (data.guest_profiles && data.guest_profiles.length > 0) {
+        const existingIds = new Set(this.data.guest_profiles.map((g) => g.id));
+        for (const g of data.guest_profiles) {
+          if (!existingIds.has(g.id)) {
+            this.data.guest_profiles.push(g);
+          }
+        }
+      }
+
+      if (data.guest_vehicles && data.guest_vehicles.length > 0) {
+        const existingIds = new Set(this.data.guest_vehicles.map((v) => v.id));
+        for (const v of data.guest_vehicles) {
+          if (!existingIds.has(v.id)) {
+            this.data.guest_vehicles.push(v);
+          }
+        }
+      }
+
+      if (data.host_profiles && data.host_profiles.length > 0) {
+        const existingIds = new Set(this.data.host_profiles.map((h) => h.id));
+        for (const h of data.host_profiles) {
+          if (!existingIds.has(h.id)) {
+            this.data.host_profiles.push(h);
+          }
+        }
+      }
+
+      if (data.host_pods && data.host_pods.length > 0) {
+        const existingIds = new Set(this.data.host_pods.map((p) => p.id));
+        for (const p of data.host_pods) {
+          if (!existingIds.has(p.id)) {
+            this.data.host_pods.push(p);
+          }
+        }
+      }
+
+      this.save();
+    } catch (err) {
+      console.warn('syncFromSupabase error:', err);
+    }
+  }
+
+  public async getUserByEmailAsync(email: string): Promise<User | null> {
+    const cached = this.getUserByEmail(email);
+    if (cached) return cached;
+    try {
+      const remote = await findUserByEmailInSupabase(email);
+      if (remote) {
+        this.addUser(remote);
+        return remote;
+      }
+    } catch (e) {
+      console.warn('getUserByEmailAsync remote lookup error:', e);
+    }
+    return null;
+  }
+
+  public async getUserByIdAsync(id: string): Promise<User | null> {
+    const cached = this.getUserById(id);
+    if (cached) return cached;
+    try {
+      const remote = await findUserByIdInSupabase(id);
+      if (remote) {
+        this.addUser(remote);
+        return remote;
+      }
+    } catch (e) {
+      console.warn('getUserByIdAsync remote lookup error:', e);
+    }
+    return null;
+  }
+
   // --- Users ---
   public getUsers() { return this.data.users; }
   public getUserById(id: string) { return this.data.users.find(u => u.id === id); }
   public getUserByEmail(email: string) { return this.data.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
   public addUser(user: User) {
-    this.data.users.push(user);
+    const existingIdx = this.data.users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+    if (existingIdx !== -1) {
+      this.data.users[existingIdx] = { ...this.data.users[existingIdx], ...user };
+    } else {
+      this.data.users.push(user);
+    }
     this.save();
+    saveUserToSupabase(user).catch(err => console.warn('Async user save to Supabase:', err));
     return user;
   }
   public updateUser(id: string, updates: Partial<User>) {
@@ -224,6 +331,7 @@ export class Database {
     if (idx !== -1) {
       this.data.users[idx] = { ...this.data.users[idx], ...updates };
       this.save();
+      saveUserToSupabase(this.data.users[idx]).catch(err => console.warn('Async user update to Supabase:', err));
       return this.data.users[idx];
     }
     return null;
@@ -262,6 +370,7 @@ export class Database {
     if (idx !== -1) {
       this.data.host_pods[idx] = { ...this.data.host_pods[idx], ...updates };
       this.save();
+      saveHostPodToSupabase(this.data.host_pods[idx]).catch(err => console.warn('Async pod save to Supabase:', err));
       return this.data.host_pods[idx];
     }
     return null;
@@ -280,8 +389,14 @@ export class Database {
   public getGuestProfiles() { return this.data.guest_profiles; }
   public getGuestProfileByUserId(userId: string) { return this.data.guest_profiles.find(g => g.user_id === userId); }
   public addGuestProfile(profile: GuestProfile) {
-    this.data.guest_profiles.push(profile);
+    const idx = this.data.guest_profiles.findIndex(g => g.id === profile.id || g.user_id === profile.user_id);
+    if (idx !== -1) {
+      this.data.guest_profiles[idx] = profile;
+    } else {
+      this.data.guest_profiles.push(profile);
+    }
     this.save();
+    saveGuestProfileToSupabase(profile).catch(err => console.warn('Async guest profile save to Supabase:', err));
     return profile;
   }
 
@@ -306,6 +421,7 @@ export class Database {
     this.data.guest_vehicles = this.data.guest_vehicles.filter(v => v.guest_id !== vehicle.guest_id);
     this.data.guest_vehicles.push(vehicle);
     this.save();
+    saveGuestVehicleToSupabase(vehicle).catch(err => console.warn('Async guest vehicle save to Supabase:', err));
     return vehicle;
   }
   public updateGuestVehicle(id: string, updates: Partial<GuestVehicle>) {

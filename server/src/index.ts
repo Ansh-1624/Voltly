@@ -21,26 +21,28 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Initialize database with seed dataset if empty
+// Initialize database with seed dataset if empty, and sync from Supabase
 try {
   if (db.getUsers().length === 0) {
     console.log('🌱 Initializing database with seed dataset...');
     runSeed(db);
   }
+  // Asynchronously sync latest accounts and state from Supabase
+  db.syncFromSupabase().catch((err) =>
+    console.warn('Initial Supabase sync deferred/offline:', err)
+  );
 } catch (seedErr) {
   console.warn('Seed initialization error (ignoring for serverless runtime):', seedErr);
 }
 
 // Health check with Supabase verification (supports both /api/health and /health)
 app.get(['/api/health', '/health'], async (_req, res) => {
-  let supabaseStatus: any = { configured: Boolean(process.env.DATABASE_URL) };
-  if (process.env.DATABASE_URL) {
-    try {
-      const sb = await testSupabaseConnection();
-      supabaseStatus = { ...supabaseStatus, ...sb };
-    } catch (err: any) {
-      supabaseStatus.error = err.message;
-    }
+  let supabaseStatus: any = { configured: true };
+  try {
+    const sb = await testSupabaseConnection();
+    supabaseStatus = { ...supabaseStatus, ...sb };
+  } catch (err: any) {
+    supabaseStatus.error = err.message;
   }
 
   res.json({
