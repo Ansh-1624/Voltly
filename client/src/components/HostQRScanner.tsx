@@ -144,3 +144,4 @@ export const HostQRScanner: React.FC<HostQRScannerProps> = ({ onSessionStarted, 
     </div>
   );
 };
+

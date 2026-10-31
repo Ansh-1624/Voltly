@@ -148,14 +148,14 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-6">
         {/* STEP 1: Vehicle Category & Model */}
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in">
             {/* Category Toggle */}
             <div>
               <label className="block text-xs font-bold text-slate-900 mb-2">Vehicle Category</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('FOUR_WHEELER')}
@@ -406,3 +406,4 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
     </div>
   );
 };
+

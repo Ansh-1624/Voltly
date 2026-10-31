@@ -365,3 +365,4 @@ export function runSeed(database = db) {
 if (require.main === module) {
   runSeed();
 }
+

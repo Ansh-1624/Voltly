@@ -147,3 +147,4 @@ sessionRouter.patch('/:id/payment', (req: AuthenticatedRequest, res: Response) =
     bill: updatedBill,
   });
 });
+

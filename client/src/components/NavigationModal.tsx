@@ -51,8 +51,8 @@ export const NavigationModal: React.FC<NavigationModalProps> = ({
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${recommendation.host.latitude},${recommendation.host.longitude}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in">
+      <div className="bg-white rounded-3xl max-w-xl w-full p-4 sm:p-8 shadow-2xl border border-slate-200 space-y-5 sm:space-y-6 max-h-[92vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -188,3 +188,4 @@ export const NavigationModal: React.FC<NavigationModalProps> = ({
     </div>
   );
 };
+

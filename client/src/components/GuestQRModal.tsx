@@ -139,13 +139,13 @@ export const GuestQRModal: React.FC<GuestQRModalProps> = ({
         {token && !loading && (
           <>
             {/* QR Code Canvas */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mx-auto shadow-inner">
+            <div className="p-3 sm:p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mx-auto shadow-inner">
               <QRCodeSVG
                 value={token}
-                size={210}
+                size={190}
                 level="H"
                 includeMargin={true}
-                className="rounded-lg"
+                className="rounded-lg max-w-full h-auto"
               />
             </div>
 
@@ -192,3 +192,4 @@ export const GuestQRModal: React.FC<GuestQRModalProps> = ({
     </div>
   );
 };
+

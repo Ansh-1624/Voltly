@@ -257,3 +257,4 @@ hostRouter.patch('/pods/:id/status', (req: AuthenticatedRequest, res: Response) 
   const updated = db.updatePod(pod.id, { status: status as PodStatus });
   return res.json({ message: `Pod status updated to ${status}`, pod: updated });
 });
+

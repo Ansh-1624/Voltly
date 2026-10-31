@@ -44,3 +44,4 @@ export function calculatePricing(
     estimatedTotalEnergyKwh: Number(estimatedTotalEnergyKwh.toFixed(2)),
   };
 }
+

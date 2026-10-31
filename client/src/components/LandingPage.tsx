@@ -261,3 +261,4 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
     </div>
   );
 };
+

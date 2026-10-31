@@ -160,7 +160,48 @@ export const GuestDashboard: React.FC<{ onNeedOnboarding: () => void }> = ({ onN
       {bills.length > 0 && (
         <div className="space-y-4 pt-6 border-t border-slate-200">
           <h2 className="text-base font-bold text-slate-900">Your Past Charging Sessions & Bills</h2>
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+
+          {/* Mobile Card View */}
+          <div className="sm:hidden space-y-3">
+            {bills.map((item: any) => (
+              <div key={item.session.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900 text-xs">{item.pod?.pod_name || 'Host Pod'}</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    {item.bill?.payment_status || 'PAID'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs bg-slate-50 p-2 rounded-lg">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Duration</span>
+                    <strong className="text-slate-800">{item.bill?.duration_minutes || '-'} min</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Energy</span>
+                    <strong className="text-emerald-700">{item.bill?.estimated_energy_kwh || '-'} kWh</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Amount</span>
+                    <strong className="text-slate-900">₹{item.bill?.final_amount || 0}</strong>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[10px] text-slate-400 font-mono">ID: {item.session.id.slice(0, 8)}...</span>
+                  {item.bill && (
+                    <button
+                      onClick={() => setSelectedBill(item.bill)}
+                      className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold"
+                    >
+                      View Bill
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                 <tr>
@@ -239,3 +280,4 @@ export const GuestDashboard: React.FC<{ onNeedOnboarding: () => void }> = ({ onN
     </div>
   );
 };
+

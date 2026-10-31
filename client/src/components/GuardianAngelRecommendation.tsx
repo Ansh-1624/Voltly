@@ -123,10 +123,10 @@ export const GuardianAngelRecommendation: React.FC<GuardianAngelProps> = ({ onAc
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Search Input Box */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/20 flex-shrink-0">
               <Compass className="w-5 h-5" />
             </div>
             <div>
@@ -139,7 +139,7 @@ export const GuardianAngelRecommendation: React.FC<GuardianAngelProps> = ({ onAc
 
           <button
             onClick={handleFetchCurrentGPS}
-            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            className="w-full sm:w-auto justify-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
           >
             <MapPin className="w-3.5 h-3.5 text-blue-600" />
             <span>{locationName}</span>
@@ -231,7 +231,7 @@ export const GuardianAngelRecommendation: React.FC<GuardianAngelProps> = ({ onAc
 
       {/* SINGLE BEST RECOMMENDATION CARD */}
       {recommendation && (
-        <div className="bg-white rounded-3xl border-2 border-emerald-500 p-6 sm:p-8 shadow-xl space-y-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2">
+        <div className="bg-white rounded-3xl border-2 border-emerald-500 p-4 sm:p-8 shadow-xl space-y-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2">
           {/* Top Badge */}
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold tracking-wide">
@@ -402,3 +402,4 @@ export const GuardianAngelRecommendation: React.FC<GuardianAngelProps> = ({ onAc
     </div>
   );
 };
+

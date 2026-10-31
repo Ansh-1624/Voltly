@@ -210,3 +210,4 @@ export const ActiveSessionView: React.FC<ActiveSessionViewProps> = ({
     </div>
   );
 };
+

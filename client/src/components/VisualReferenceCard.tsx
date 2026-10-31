@@ -206,3 +206,4 @@ export const SvgNotSure = () => (
     <span className="text-[10px] font-bold text-slate-500 mt-1">Not Sure</span>
   </div>
 );
+

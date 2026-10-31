@@ -119,3 +119,4 @@ export const api = {
     body: JSON.stringify({ notes }),
   }),
 };
+

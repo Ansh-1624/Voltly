@@ -54,3 +54,4 @@ export function generateToken(user: User): string {
     { expiresIn: '7d' }
   );
 }
+

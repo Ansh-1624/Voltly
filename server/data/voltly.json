@@ -21,7 +21,7 @@
       "name": "Priya Patel",
       "email": "priya.host@voltly.com",
       "phone": "+91 98802 23456",
-      "role": "HOST",
+      "role": "GUEST",
       "created_at": "2026-10-31T07:56:00.551Z"
     },
     {
@@ -97,6 +97,22 @@
       "checked_by_electrician": false,
       "notes": "Awaiting electrician confirmation and earthing check.",
       "created_at": "2026-10-31T07:56:00.551Z"
+    },
+    {
+      "id": "3a9faf3c-7610-4409-9c83-5d29eaf1f55d",
+      "user_id": "user-guest-1",
+      "household_location": "Indiranagar 100ft Road, Bengaluru, Karnataka",
+      "latitude": 12.9716,
+      "longitude": 77.6412,
+      "electricity_supply_type": "THREE_PHASE",
+      "sanctioned_load_kw": 5,
+      "electricity_tariff": 8.5,
+      "max_simultaneous_sessions": 1,
+      "verification_status": "PENDING",
+      "earthing_confirmed": true,
+      "checked_by_electrician": true,
+      "notes": "Socket visual check confirmed.",
+      "created_at": "2026-10-31T08:05:49.208Z"
     }
   ],
   "host_pods": [
@@ -110,7 +126,7 @@
       "verified_safe_power_kw": 3.3,
       "earthing_status": "PROPER",
       "availability_schedule": "All days, 06:00 AM - 11:00 PM",
-      "status": "AVAILABLE",
+      "status": "TEMPORARILY_UNAVAILABLE",
       "verification_status": "APPROVED",
       "created_at": "2026-10-31T07:56:00.551Z"
     },
@@ -157,6 +173,20 @@
       "verification_status": "NEEDS_REVIEW",
       "admin_notes": "Earthing self-declaration marked uncertain. Requires professional certificate.",
       "created_at": "2026-10-31T07:56:00.551Z"
+    },
+    {
+      "id": "a67f8914-d79f-41e4-b07b-43c83108cf06",
+      "host_id": "3a9faf3c-7610-4409-9c83-5d29eaf1f55d",
+      "pod_name": "Home Driveway Pod 1",
+      "socket_type": "16A_3PIN",
+      "rated_current_a": 16,
+      "rated_voltage_v": 230,
+      "verified_safe_power_kw": 3.3,
+      "earthing_status": "PROPER",
+      "availability_schedule": "All days, 07:00 AM - 10:00 PM",
+      "status": "AVAILABLE",
+      "verification_status": "PENDING",
+      "created_at": "2026-10-31T08:05:49.213Z"
     }
   ],
   "guest_profiles": [
@@ -171,6 +201,18 @@
       "user_id": "user-guest-2",
       "vehicle_category": "TWO_WHEELER",
       "created_at": "2026-10-31T07:56:00.552Z"
+    },
+    {
+      "id": "c4a4b17e-b6d1-4e3a-b841-f7a8cd2d94ae",
+      "user_id": "user-host-1",
+      "vehicle_category": "FOUR_WHEELER",
+      "created_at": "2026-10-31T08:11:34.352Z"
+    },
+    {
+      "id": "33727a16-04da-4bb3-a61e-6d8aa535a0b1",
+      "user_id": "user-host-2",
+      "vehicle_category": "FOUR_WHEELER",
+      "created_at": "2026-10-31T08:12:04.185Z"
     }
   ],
   "vehicle_models": [
@@ -281,11 +323,134 @@
       "evse_rated_power_kw": 1.4,
       "evse_vehicle_connector": "IEC_62196_TYPE_2",
       "created_at": "2026-10-31T07:56:00.552Z"
+    },
+    {
+      "id": "6c5b0942-198b-4b7b-a850-0a6686af0062",
+      "guest_id": "c4a4b17e-b6d1-4e3a-b841-f7a8cd2d94ae",
+      "vehicle_model_id": "vm-mg-zs",
+      "battery_capacity_kwh": 50.3,
+      "vehicle_connector": "IEC_62196_TYPE_2",
+      "max_ac_power_kw": 3.3,
+      "ac_charging_supported": true,
+      "evse_make_model": "OEM Portable 16A Charging Cable",
+      "evse_supply_plug": "6A_3PIN",
+      "evse_rated_power_kw": 3.3,
+      "evse_vehicle_connector": "16A_3PIN",
+      "created_at": "2026-10-31T08:11:34.353Z"
+    },
+    {
+      "id": "36613d0b-139d-41ae-bef6-c714b6143e78",
+      "guest_id": "33727a16-04da-4bb3-a61e-6d8aa535a0b1",
+      "vehicle_model_id": "vm-nexon-ev",
+      "battery_capacity_kwh": 40.5,
+      "vehicle_connector": "IEC_62196_TYPE_2",
+      "max_ac_power_kw": 3.3,
+      "ac_charging_supported": true,
+      "evse_make_model": "OEM Portable 16A Charging Cable",
+      "evse_supply_plug": "16A_3PIN",
+      "evse_rated_power_kw": 3.3,
+      "evse_vehicle_connector": "IEC_62196_TYPE_2",
+      "created_at": "2026-10-31T08:12:04.186Z"
     }
   ],
-  "recommendations": [],
+  "recommendations": [
+    {
+      "id": "dd342527-07b3-4a18-b56f-059bf8e8d0dd",
+      "guest_id": "gp-1",
+      "selected_pod_id": "pod-1a",
+      "guest_lat": 12.9716,
+      "guest_lng": 77.5946,
+      "initial_battery_pct": 35,
+      "estimated_range_km": 48,
+      "estimated_distance_km": 6.82,
+      "estimated_eta_minutes": 16,
+      "status": "RECOMMENDED",
+      "why_selected_reason": "Guardian Angel selected Pod \"Indiranagar Driveway Pod #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 6.82 km away (~16 min travel time). Rate is locked at ₹0.47/min (₹8.5/kWh).",
+      "ranking_score": 87.88,
+      "created_at": "2026-10-31T08:04:02.337Z"
+    },
+    {
+      "id": "e55a3213-d4a0-4410-8209-a6e9c570da7d",
+      "guest_id": "gp-1",
+      "selected_pod_id": "pod-1a",
+      "guest_lat": 12.9716,
+      "guest_lng": 77.5946,
+      "initial_battery_pct": 35,
+      "estimated_range_km": 48,
+      "estimated_distance_km": 6.82,
+      "estimated_eta_minutes": 16,
+      "status": "ACCEPTED",
+      "why_selected_reason": "Guardian Angel selected Pod \"Indiranagar Driveway Pod #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 6.82 km away (~16 min travel time). Rate is locked at ₹0.47/min (₹8.5/kWh).",
+      "ranking_score": 87.88,
+      "created_at": "2026-10-31T08:06:11.235Z"
+    },
+    {
+      "id": "18f97747-c7be-45c0-996a-9c12a0485fba",
+      "guest_id": "33727a16-04da-4bb3-a61e-6d8aa535a0b1",
+      "selected_pod_id": "pod-1a",
+      "guest_lat": 12.9716,
+      "guest_lng": 77.5946,
+      "initial_battery_pct": 35,
+      "estimated_range_km": 48,
+      "estimated_distance_km": 6.82,
+      "estimated_eta_minutes": 16,
+      "status": "ACCEPTED",
+      "why_selected_reason": "Guardian Angel selected Pod \"Indiranagar Driveway Pod #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 6.82 km away (~16 min travel time). Rate is locked at ₹0.47/min (₹8.5/kWh).",
+      "ranking_score": 87.88,
+      "created_at": "2026-10-31T08:12:06.386Z"
+    },
+    {
+      "id": "3c78510d-5184-4a89-85d0-ea44e1903090",
+      "guest_id": "gp-1",
+      "selected_pod_id": "pod-1a",
+      "guest_lat": 12.9716,
+      "guest_lng": 77.5946,
+      "initial_battery_pct": 35,
+      "estimated_range_km": 48,
+      "estimated_distance_km": 6.82,
+      "estimated_eta_minutes": 16,
+      "status": "ACCEPTED",
+      "why_selected_reason": "Guardian Angel selected Pod \"Indiranagar Driveway Pod #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 6.82 km away (~16 min travel time). Rate is locked at ₹0.47/min (₹8.5/kWh).",
+      "ranking_score": 87.88,
+      "created_at": "2026-10-31T08:14:05.167Z"
+    }
+  ],
   "recommendation_feedback": [],
-  "qr_tokens": [],
+  "qr_tokens": [
+    {
+      "id": "5226c6ce-787e-4da5-94ae-1a7b0b7b36da",
+      "token_hash": "26995130c478464c35a7bc2d75e75fe27436b8bb2a3ed5f8233cff3dfe290e6c",
+      "guest_id": "gp-1",
+      "host_id": "hp-1",
+      "pod_id": "pod-1a",
+      "recommendation_id": "e55a3213-d4a0-4410-8209-a6e9c570da7d",
+      "expires_at": "2026-10-31T08:16:15.737Z",
+      "used_at": null,
+      "created_at": "2026-10-31T08:06:15.737Z"
+    },
+    {
+      "id": "7a1be004-9ffc-4f78-9def-0f2dcb74d2b4",
+      "token_hash": "09ff3e4b2cd95d26c3c1be31b805daa052a172e9ff3dc55fa2f40b25fe1bdc90",
+      "guest_id": "33727a16-04da-4bb3-a61e-6d8aa535a0b1",
+      "host_id": "hp-1",
+      "pod_id": "pod-1a",
+      "recommendation_id": "18f97747-c7be-45c0-996a-9c12a0485fba",
+      "expires_at": "2026-10-31T08:22:44.168Z",
+      "used_at": null,
+      "created_at": "2026-10-31T08:12:44.168Z"
+    },
+    {
+      "id": "c5059658-9db5-4ee0-9d73-d5b7a3312902",
+      "token_hash": "b57fd939eca5090582b0dab9e4b110e23012edc8a15c4c33477a0fb6a9d334f3",
+      "guest_id": "gp-1",
+      "host_id": "hp-1",
+      "pod_id": "pod-1a",
+      "recommendation_id": "3c78510d-5184-4a89-85d0-ea44e1903090",
+      "expires_at": "2026-10-31T08:24:35.434Z",
+      "used_at": null,
+      "created_at": "2026-10-31T08:14:35.434Z"
+    }
+  ],
   "charging_sessions": [
     {
       "id": "sess-past-1",

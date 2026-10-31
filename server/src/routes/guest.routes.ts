@@ -151,3 +151,4 @@ guestRouter.post('/onboard', (req: AuthenticatedRequest, res: Response) => {
     guestVehicle,
   });
 });
+

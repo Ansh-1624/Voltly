@@ -131,10 +131,10 @@ export const HostDashboard: React.FC<{ onNeedOnboarding: () => void }> = ({ onNe
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={() => setScannerOpen(true)}
-              className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-xs rounded-xl shadow-lg shadow-emerald-950/20 flex items-center gap-2 transition-transform active:scale-95"
+              className="w-full sm:w-auto justify-center px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-xs rounded-xl shadow-lg shadow-emerald-950/20 flex items-center gap-2 transition-transform active:scale-95"
             >
               <QrCode className="w-4 h-4 text-slate-900" />
               <span>Scan Guest QR</span>
@@ -359,7 +359,38 @@ export const HostDashboard: React.FC<{ onNeedOnboarding: () => void }> = ({ onNe
       {recentSessions.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-base font-bold text-slate-900">Recent Completed Sessions</h2>
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+
+          {/* Mobile Card View (visible on < 640px) */}
+          <div className="sm:hidden space-y-3">
+            {recentSessions.map((s: any) => (
+              <div key={s.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900 text-xs">{s.pod?.pod_name || 'Pod'}</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    {s.bill?.payment_status || 'PAID'} ({s.bill?.payment_method || 'UPI'})
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs bg-slate-50 p-2 rounded-lg">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Duration</span>
+                    <strong className="text-slate-800">{s.bill?.duration_minutes || '-'} min</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Energy</span>
+                    <strong className="text-emerald-700">{s.bill?.estimated_energy_kwh || '-'} kWh</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Amount</span>
+                    <strong className="text-slate-900">₹{s.bill?.final_amount || 0}</strong>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400 font-mono">Session ID: {s.id.slice(0, 12)}...</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table (hidden on mobile) */}
+          <div className="hidden sm:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                 <tr>
@@ -460,3 +491,4 @@ export const HostDashboard: React.FC<{ onNeedOnboarding: () => void }> = ({ onNe
     </div>
   );
 };
+

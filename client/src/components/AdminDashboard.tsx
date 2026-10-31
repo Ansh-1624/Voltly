@@ -210,7 +210,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 {/* Review Actions */}
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
                   <button
                     onClick={() => handleFlag(pod.id)}
                     className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition-colors"
@@ -274,3 +274,4 @@ export const AdminDashboard: React.FC = () => {
     </div>
   );
 };
+

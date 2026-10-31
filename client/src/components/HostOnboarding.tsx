@@ -118,7 +118,7 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
         </p>
 
         {/* Step Tabs */}
-        <div className="flex items-center justify-center gap-2 mt-6">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-6">
           <button
             type="button"
             onClick={() => setStep(1)}
@@ -128,7 +128,7 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
           >
             1. Location & Load
           </button>
-          <span className="text-slate-300">/</span>
+          <span className="text-slate-300 hidden sm:inline">/</span>
           <button
             type="button"
             onClick={() => setStep(2)}
@@ -138,7 +138,7 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
           >
             2. Electrical Verification
           </button>
-          <span className="text-slate-300">/</span>
+          <span className="text-slate-300 hidden sm:inline">/</span>
           <button
             type="button"
             onClick={() => setStep(3)}
@@ -158,7 +158,7 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-6">
         {/* STEP 1: Location & Supply */}
         {step === 1 && (
           <div className="space-y-5 animate-in fade-in">
@@ -190,7 +190,7 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
             {/* Supply Type */}
             <div>
               <label className="block text-xs font-bold text-slate-900 mb-1">Electricity Supply Type</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {[
                   { id: 'SINGLE_PHASE', label: 'Single Phase', desc: 'Standard 230V residential' },
                   { id: 'THREE_PHASE', label: 'Three Phase', desc: 'Commercial or heavy home 415V' },
@@ -468,3 +468,4 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
     </div>
   );
 };
+

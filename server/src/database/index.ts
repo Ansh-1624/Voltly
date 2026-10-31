@@ -316,3 +316,4 @@ export class Database {
 
 // Global database instance
 export const db = new Database();
+

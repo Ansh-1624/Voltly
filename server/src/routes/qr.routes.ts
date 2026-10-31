@@ -70,3 +70,4 @@ qrRouter.post('/scan', requireRole(['HOST', 'ADMIN']), async (req: Authenticated
     return res.status(500).json({ error: err.message || 'Internal error during QR verification' });
   }
 });
+

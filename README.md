@@ -221,3 +221,4 @@ GOOGLE_MAPS_API_KEY=demo_key
 ## 9. Known Scope Boundaries (Hackathon Prototype)
 - **Physical Electricity Control**: Voltly coordinates peer-to-peer charging sessions, enforces time limits, and calculates bills; it does not contain physical hardware relays to physically cut power lines without IoT contactors.
 - **Payment Processing**: All settlements occur directly between host and guest via UPI QR or Cash; Voltly charges zero platform commissions.
+

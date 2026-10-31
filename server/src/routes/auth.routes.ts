@@ -97,3 +97,4 @@ authRouter.patch('/role', authMiddleware, (req: AuthenticatedRequest, res: Respo
     message: `Role switched to ${role}`,
   });
 });
+
