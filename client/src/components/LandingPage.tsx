@@ -175,17 +175,30 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
             </form>
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Compliance & Safety Admin?</span>
+              <span className="text-slate-500 font-medium">Compliance & Safety Admin?</span>
               <button
                 type="button"
-                onClick={() => {
-                  setGoogleName('Voltly Compliance Officer');
-                  setGoogleEmail('admin@voltly.com');
+                disabled={authLoading}
+                onClick={async () => {
+                  setAuthLoading(true);
+                  setAuthError(null);
+                  try {
+                    await loginWithGoogle('admin@voltly.com', 'Voltly Compliance Officer', 'ADMIN');
+                    setGoogleModalOpen(false);
+                  } catch (err: any) {
+                    setAuthError(err.message || 'Failed to authenticate as Admin');
+                  } finally {
+                    setAuthLoading(false);
+                  }
                 }}
-                className="text-purple-600 hover:text-purple-700 font-bold hover:underline flex items-center gap-1"
+                className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold border border-purple-200 transition-colors flex items-center gap-1.5 disabled:opacity-50"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                <span>Fill Admin Login</span>
+                {authLoading ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-purple-600" />
+                ) : (
+                  <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                )}
+                <span>Login as Admin</span>
               </button>
             </div>
 
