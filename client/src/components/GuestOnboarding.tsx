@@ -131,7 +131,11 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
     api.getVehicleCatalogue()
       .then((res) => {
         if (res?.models && res.models.length > 0) {
-          setCatalogue(res.models);
+          const map = new Map<string, VehicleModel>();
+          for (const m of res.models) {
+            if (m && m.id) map.set(m.id, m);
+          }
+          setCatalogue(Array.from(map.values()));
         }
       })
       .catch((err) => {
@@ -156,7 +160,7 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
     setError(null);
 
     try {
-      await api.saveGuestOnboarding({
+      const onboardRes = await api.saveGuestOnboarding({
         vehicle_category: selectedCategory,
         vehicle_model_id: selectedModelId === 'custom' ? undefined : selectedModelId,
         custom_manufacturer: selectedModelId === 'custom' ? customManufacturer : undefined,
@@ -171,6 +175,13 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
         evse_vehicle_connector: evseVehicleConnector,
       });
 
+      if (onboardRes?.guestProfile) {
+        localStorage.setItem('voltly_guest_profile', JSON.stringify(onboardRes.guestProfile));
+      }
+      if (onboardRes?.guestVehicle) {
+        localStorage.setItem('voltly_guest_vehicle', JSON.stringify(onboardRes.guestVehicle));
+      }
+
       await refreshProfile();
       onComplete();
     } catch (err: any) {
@@ -180,7 +191,8 @@ export const GuestOnboarding: React.FC<{ onComplete: () => void }> = ({ onComple
     }
   };
 
-  const filteredCatalogue = catalogue.filter((v) => v.category === selectedCategory);
+  const uniqueCatalogue = Array.from(new Map(catalogue.map((m) => [m.id, m])).values());
+  const filteredCatalogue = uniqueCatalogue.filter((v) => v.category === selectedCategory);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">

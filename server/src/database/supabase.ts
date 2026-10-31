@@ -431,6 +431,54 @@ export async function saveGuestVehicleToSupabase(gv: GuestVehicle): Promise<void
 }
 
 /**
+ * Save Host Profile to Supabase
+ */
+export async function saveHostProfileToSupabase(hp: HostProfile): Promise<void> {
+  const p = getSupabasePool();
+  if (!p) return;
+  try {
+    await p.query(
+      `INSERT INTO host_profiles (
+        id, user_id, household_location, latitude, longitude,
+        electricity_supply_type, sanctioned_load_kw, electricity_tariff,
+        max_simultaneous_sessions, verification_status, earthing_confirmed,
+        checked_by_electrician, notes, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      ON CONFLICT (id) DO UPDATE SET
+        household_location = EXCLUDED.household_location,
+        latitude = EXCLUDED.latitude,
+        longitude = EXCLUDED.longitude,
+        electricity_supply_type = EXCLUDED.electricity_supply_type,
+        sanctioned_load_kw = EXCLUDED.sanctioned_load_kw,
+        electricity_tariff = EXCLUDED.electricity_tariff,
+        max_simultaneous_sessions = EXCLUDED.max_simultaneous_sessions,
+        verification_status = EXCLUDED.verification_status,
+        earthing_confirmed = EXCLUDED.earthing_confirmed,
+        checked_by_electrician = EXCLUDED.checked_by_electrician,
+        notes = EXCLUDED.notes;`,
+      [
+        hp.id,
+        hp.user_id,
+        hp.household_location,
+        hp.latitude,
+        hp.longitude,
+        hp.electricity_supply_type,
+        hp.sanctioned_load_kw,
+        hp.electricity_tariff,
+        hp.max_simultaneous_sessions,
+        hp.verification_status,
+        hp.earthing_confirmed,
+        hp.checked_by_electrician,
+        hp.notes || null,
+        hp.created_at || new Date().toISOString(),
+      ]
+    );
+  } catch (err) {
+    console.warn('saveHostProfileToSupabase error:', err);
+  }
+}
+
+/**
  * Save Host Pod to Supabase
  */
 export async function saveHostPodToSupabase(pod: HostPod): Promise<void> {
@@ -465,5 +513,120 @@ export async function saveHostPodToSupabase(pod: HostPod): Promise<void> {
     );
   } catch (err) {
     console.warn('saveHostPodToSupabase error:', err);
+  }
+}
+
+/**
+ * Find Guest Profile by user ID in Supabase
+ */
+export async function findGuestProfileByUserIdInSupabase(userId: string): Promise<GuestProfile | null> {
+  const p = getSupabasePool();
+  if (!p) return null;
+  try {
+    const res = await p.query('SELECT * FROM guest_profiles WHERE user_id = $1 LIMIT 1', [userId]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      user_id: r.user_id,
+      vehicle_category: r.vehicle_category,
+      created_at: r.created_at?.toISOString ? r.created_at.toISOString() : String(r.created_at),
+    };
+  } catch (err) {
+    console.warn('findGuestProfileByUserIdInSupabase error:', err);
+    return null;
+  }
+}
+
+/**
+ * Find Guest Vehicle by guest ID in Supabase
+ */
+export async function findGuestVehicleByGuestIdInSupabase(guestId: string): Promise<GuestVehicle | null> {
+  const p = getSupabasePool();
+  if (!p) return null;
+  try {
+    const res = await p.query('SELECT * FROM guest_vehicles WHERE guest_id = $1 LIMIT 1', [guestId]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      guest_id: r.guest_id,
+      vehicle_model_id: r.vehicle_model_id || undefined,
+      custom_manufacturer: r.custom_manufacturer || undefined,
+      custom_model: r.custom_model || undefined,
+      battery_capacity_kwh: Number(r.battery_capacity_kwh),
+      vehicle_connector: r.vehicle_connector,
+      max_ac_power_kw: Number(r.max_ac_power_kw),
+      ac_charging_supported: Boolean(r.ac_charging_supported),
+      evse_make_model: r.evse_make_model,
+      evse_supply_plug: r.evse_supply_plug,
+      evse_rated_power_kw: Number(r.evse_rated_power_kw),
+      evse_vehicle_connector: r.evse_vehicle_connector,
+      created_at: r.created_at?.toISOString ? r.created_at.toISOString() : String(r.created_at),
+    };
+  } catch (err) {
+    console.warn('findGuestVehicleByGuestIdInSupabase error:', err);
+    return null;
+  }
+}
+
+/**
+ * Find Host Profile by user ID in Supabase
+ */
+export async function findHostProfileByUserIdInSupabase(userId: string): Promise<HostProfile | null> {
+  const p = getSupabasePool();
+  if (!p) return null;
+  try {
+    const res = await p.query('SELECT * FROM host_profiles WHERE user_id = $1 LIMIT 1', [userId]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      user_id: r.user_id,
+      household_location: r.household_location,
+      latitude: Number(r.latitude),
+      longitude: Number(r.longitude),
+      electricity_supply_type: r.electricity_supply_type,
+      sanctioned_load_kw: Number(r.sanctioned_load_kw),
+      electricity_tariff: Number(r.electricity_tariff),
+      max_simultaneous_sessions: Number(r.max_simultaneous_sessions),
+      verification_status: r.verification_status,
+      earthing_confirmed: Boolean(r.earthing_confirmed),
+      checked_by_electrician: Boolean(r.checked_by_electrician),
+      notes: r.notes || undefined,
+      created_at: r.created_at?.toISOString ? r.created_at.toISOString() : String(r.created_at),
+    };
+  } catch (err) {
+    console.warn('findHostProfileByUserIdInSupabase error:', err);
+    return null;
+  }
+}
+
+/**
+ * Find Host Pods by host ID in Supabase
+ */
+export async function findPodsByHostIdInSupabase(hostId: string): Promise<HostPod[]> {
+  const p = getSupabasePool();
+  if (!p) return [];
+  try {
+    const res = await p.query('SELECT * FROM host_pods WHERE host_id = $1', [hostId]);
+    return res.rows.map((r) => ({
+      id: r.id,
+      host_id: r.host_id,
+      pod_name: r.pod_name,
+      socket_type: r.socket_type,
+      rated_current_a: Number(r.rated_current_a),
+      rated_voltage_v: Number(r.rated_voltage_v),
+      verified_safe_power_kw: Number(r.verified_safe_power_kw),
+      earthing_status: r.earthing_status,
+      availability_schedule: r.availability_schedule,
+      status: r.status,
+      verification_status: r.verification_status,
+      admin_notes: r.admin_notes || undefined,
+      created_at: r.created_at?.toISOString ? r.created_at.toISOString() : String(r.created_at),
+    }));
+  } catch (err) {
+    console.warn('findPodsByHostIdInSupabase error:', err);
+    return [];
   }
 }

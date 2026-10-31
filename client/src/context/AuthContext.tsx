@@ -9,8 +9,8 @@ interface AuthContextType {
   guestVehicle: GuestVehicle | null;
   token: string | null;
   loading: boolean;
-  authModal: { isOpen: boolean; mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' };
-  openAuthModal: (mode?: 'LOGIN' | 'SIGNUP' | 'ADMIN') => void;
+  authModal: { isOpen: boolean; mode: 'LOGIN' | 'SIGNUP' | 'ADMIN'; initialRole?: 'GUEST' | 'HOST' };
+  openAuthModal: (mode?: 'LOGIN' | 'SIGNUP' | 'ADMIN', initialRole?: 'GUEST' | 'HOST') => void;
   closeAuthModal: () => void;
   login: (email: string, name?: string, role?: UserRole) => Promise<void>;
   loginAsDemo: (email: string) => Promise<void>;
@@ -25,18 +25,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [hostProfile, setHostProfile] = useState<HostProfile | null>(null);
-  const [guestProfile, setGuestProfile] = useState<GuestProfile | null>(null);
-  const [guestVehicle, setGuestVehicle] = useState<GuestVehicle | null>(null);
+  const [hostProfile, setHostProfile] = useState<HostProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('voltly_host_profile');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [guestProfile, setGuestProfile] = useState<GuestProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('voltly_guest_profile');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [guestVehicle, setGuestVehicle] = useState<GuestVehicle | null>(() => {
+    try {
+      const saved = localStorage.getItem('voltly_guest_vehicle');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [token, setToken] = useState<string | null>(localStorage.getItem('voltly_token'));
   const [loading, setLoading] = useState<boolean>(true);
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' }>({
+  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'LOGIN' | 'SIGNUP' | 'ADMIN'; initialRole?: 'GUEST' | 'HOST' }>({
     isOpen: false,
     mode: 'LOGIN',
   });
 
-  const openAuthModal = (mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' = 'LOGIN') => {
-    setAuthModal({ isOpen: true, mode });
+  const openAuthModal = (mode: 'LOGIN' | 'SIGNUP' | 'ADMIN' = 'LOGIN', initialRole?: 'GUEST' | 'HOST') => {
+    setAuthModal({ isOpen: true, mode, initialRole });
   };
 
   const closeAuthModal = () => {
@@ -47,12 +68,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await api.getMe();
       setUser(data.user);
-      setHostProfile(data.hostProfile);
-      setGuestProfile(data.guestProfile);
-      setGuestVehicle(data.guestVehicle);
+      setHostProfile(data.hostProfile || null);
+      setGuestProfile(data.guestProfile || null);
+      setGuestVehicle(data.guestVehicle || null);
+
+      if (data.hostProfile) localStorage.setItem('voltly_host_profile', JSON.stringify(data.hostProfile));
+      if (data.guestProfile) localStorage.setItem('voltly_guest_profile', JSON.stringify(data.guestProfile));
+      if (data.guestVehicle) localStorage.setItem('voltly_guest_vehicle', JSON.stringify(data.guestVehicle));
     } catch (err) {
       console.warn('Failed to fetch user profile, clearing token:', err);
       localStorage.removeItem('voltly_token');
+      localStorage.removeItem('voltly_host_profile');
+      localStorage.removeItem('voltly_guest_profile');
+      localStorage.removeItem('voltly_guest_vehicle');
       setToken(null);
       setUser(null);
     } finally {
@@ -122,6 +150,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     localStorage.removeItem('voltly_token');
+    localStorage.removeItem('voltly_host_profile');
+    localStorage.removeItem('voltly_guest_profile');
+    localStorage.removeItem('voltly_guest_vehicle');
     setToken(null);
     setUser(null);
     setHostProfile(null);

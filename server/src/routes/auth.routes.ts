@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import crypto from 'crypto';
 import { db } from '../database';
 import { generateToken, authMiddleware, AuthenticatedRequest } from '../middleware/auth';
-import { User, UserRole } from '../types';
+import { User, UserRole, HostProfile, GuestProfile, GuestVehicle } from '../types';
 
 export const authRouter = Router();
 
@@ -174,17 +174,26 @@ authRouter.post('/google', async (req, res) => {
 /**
  * Get current user with associated host/guest profile
  */
-authRouter.get('/me', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
+authRouter.get('/me', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
-  const hostProfile = db.getHostProfileByUserId(user.id);
-  const guestProfile = db.getGuestProfileByUserId(user.id);
-  const guestVehicle = guestProfile ? db.getGuestVehicleByGuestId(guestProfile.id) : null;
+  let hostProfile: HostProfile | null | undefined = db.getHostProfileByUserId(user.id);
+  if (!hostProfile && user.role === 'HOST') {
+    hostProfile = await db.getHostProfileByUserIdAsync(user.id);
+  }
+  let guestProfile: GuestProfile | null | undefined = db.getGuestProfileByUserId(user.id);
+  if (!guestProfile && user.role === 'GUEST') {
+    guestProfile = await db.getGuestProfileByUserIdAsync(user.id);
+  }
+  let guestVehicle: GuestVehicle | null | undefined = null;
+  if (guestProfile) {
+    guestVehicle = db.getGuestVehicleByGuestId(guestProfile.id) || (await db.getGuestVehicleByGuestIdAsync(guestProfile.id));
+  }
 
   return res.json({
     user,
-    hostProfile,
-    guestProfile,
-    guestVehicle,
+    hostProfile: hostProfile || null,
+    guestProfile: guestProfile || null,
+    guestVehicle: guestVehicle || null,
   });
 });
 

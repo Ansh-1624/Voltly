@@ -72,7 +72,7 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
       const earthingConfirmed = selectedEarthing === 'PROPER';
 
       // 1. Save Host Profile
-      await api.saveHostProfile({
+      const profileRes = await api.saveHostProfile({
         household_location: householdLocation,
         latitude,
         longitude,
@@ -83,6 +83,10 @@ export const HostOnboarding: React.FC<{ onComplete: () => void }> = ({ onComplet
         checked_by_electrician: checkedByElectrician,
         notes: noVisibleDamage ? 'Socket visual check confirmed.' : 'Requires safety check.',
       });
+
+      if (profileRes?.host) {
+        localStorage.setItem('voltly_host_profile', JSON.stringify(profileRes.host));
+      }
 
       // 2. Add Initial Pod
       await api.addHostPod({

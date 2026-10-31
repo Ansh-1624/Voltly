@@ -21,7 +21,7 @@
       "name": "Priya Patel",
       "email": "priya.host@voltly.com",
       "phone": "+91 98802 23456",
-      "role": "HOST",
+      "role": "GUEST",
       "created_at": "2026-10-31T07:56:00.551Z"
     },
     {
@@ -48,24 +48,6 @@
       "phone": "+91 99002 56789",
       "role": "GUEST",
       "created_at": "2026-10-31T07:56:00.551Z"
-    },
-    {
-      "id": "user-guest-arpita",
-      "name": "Arpita Swain",
-      "email": "swainarpita28@gmail.com",
-      "phone": "+91 98765 43210",
-      "role": "GUEST",
-      "role_selected": true,
-      "created_at": "2026-10-31T11:59:54.906Z"
-    },
-    {
-      "id": "user-guest-ansh",
-      "name": "Ansh Goyal",
-      "email": "goyalansh994@gmail.com",
-      "phone": "+91 98765 00000",
-      "role": "GUEST",
-      "role_selected": true,
-      "created_at": "2026-10-31T11:59:54.906Z"
     }
   ],
   "host_profiles": [
@@ -268,18 +250,6 @@
       "user_id": "user-admin-1",
       "vehicle_category": "FOUR_WHEELER",
       "created_at": "2026-10-31T10:39:20.444Z"
-    },
-    {
-      "id": "gp-arpita",
-      "user_id": "user-guest-arpita",
-      "vehicle_category": "FOUR_WHEELER",
-      "created_at": "2026-10-31T11:59:54.906Z"
-    },
-    {
-      "id": "gp-ansh",
-      "user_id": "user-guest-ansh",
-      "vehicle_category": "FOUR_WHEELER",
-      "created_at": "2026-10-31T11:59:54.906Z"
     }
   ],
   "vehicle_models": [
@@ -432,34 +402,6 @@
       "evse_rated_power_kw": 3.3,
       "evse_vehicle_connector": "IEC_62196_TYPE_2",
       "created_at": "2026-10-31T11:47:48.433Z"
-    },
-    {
-      "id": "gv-arpita",
-      "guest_id": "gp-arpita",
-      "vehicle_model_id": "vm-nexon-ev",
-      "battery_capacity_kwh": 40.5,
-      "vehicle_connector": "IEC_62196_TYPE_2",
-      "max_ac_power_kw": 3.3,
-      "ac_charging_supported": true,
-      "evse_make_model": "Tata Portable AC EVSE Cable",
-      "evse_supply_plug": "16A_3PIN",
-      "evse_rated_power_kw": 3.3,
-      "evse_vehicle_connector": "IEC_62196_TYPE_2",
-      "created_at": "2026-10-31T11:59:54.906Z"
-    },
-    {
-      "id": "gv-ansh",
-      "guest_id": "gp-ansh",
-      "vehicle_model_id": "vm-nexon-ev",
-      "battery_capacity_kwh": 40.5,
-      "vehicle_connector": "IEC_62196_TYPE_2",
-      "max_ac_power_kw": 3.3,
-      "ac_charging_supported": true,
-      "evse_make_model": "Tata Portable AC EVSE Cable",
-      "evse_supply_plug": "16A_3PIN",
-      "evse_rated_power_kw": 3.3,
-      "evse_vehicle_connector": "IEC_62196_TYPE_2",
-      "created_at": "2026-10-31T11:59:54.906Z"
     }
   ],
   "recommendations": [

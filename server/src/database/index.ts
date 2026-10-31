@@ -18,9 +18,14 @@ import {
   findUserByEmailInSupabase,
   findUserByIdInSupabase,
   saveUserToSupabase,
+  saveHostProfileToSupabase,
   saveGuestProfileToSupabase,
   saveGuestVehicleToSupabase,
   saveHostPodToSupabase,
+  findGuestProfileByUserIdInSupabase,
+  findGuestVehicleByGuestIdInSupabase,
+  findHostProfileByUserIdInSupabase,
+  findPodsByHostIdInSupabase,
 } from './supabase';
 
 export interface DatabaseSchema {
@@ -341,9 +346,29 @@ export class Database {
   public getHostProfiles() { return this.data.host_profiles; }
   public getHostProfileById(id: string) { return this.data.host_profiles.find(h => h.id === id); }
   public getHostProfileByUserId(userId: string) { return this.data.host_profiles.find(h => h.user_id === userId); }
+  public async getHostProfileByUserIdAsync(userId: string): Promise<HostProfile | null> {
+    const cached = this.getHostProfileByUserId(userId);
+    if (cached) return cached;
+    try {
+      const remote = await findHostProfileByUserIdInSupabase(userId);
+      if (remote) {
+        this.addHostProfile(remote);
+        return remote;
+      }
+    } catch (e) {
+      console.warn('getHostProfileByUserIdAsync error:', e);
+    }
+    return null;
+  }
   public addHostProfile(profile: HostProfile) {
-    this.data.host_profiles.push(profile);
+    const idx = this.data.host_profiles.findIndex(h => h.id === profile.id || h.user_id === profile.user_id);
+    if (idx !== -1) {
+      this.data.host_profiles[idx] = profile;
+    } else {
+      this.data.host_profiles.push(profile);
+    }
     this.save();
+    saveHostProfileToSupabase(profile).catch(err => console.warn('Async host profile save to Supabase:', err));
     return profile;
   }
   public updateHostProfile(id: string, updates: Partial<HostProfile>) {
@@ -351,6 +376,7 @@ export class Database {
     if (idx !== -1) {
       this.data.host_profiles[idx] = { ...this.data.host_profiles[idx], ...updates };
       this.save();
+      saveHostProfileToSupabase(this.data.host_profiles[idx]).catch(err => console.warn('Async host profile update to Supabase:', err));
       return this.data.host_profiles[idx];
     }
     return null;
@@ -360,9 +386,32 @@ export class Database {
   public getPods() { return this.data.host_pods; }
   public getPodById(id: string) { return this.data.host_pods.find(p => p.id === id); }
   public getPodsByHostId(hostId: string) { return this.data.host_pods.filter(p => p.host_id === hostId); }
+  public async getPodsByHostIdAsync(hostId: string): Promise<HostPod[]> {
+    const cached = this.getPodsByHostId(hostId);
+    if (cached.length > 0) return cached;
+    try {
+      const remote = await findPodsByHostIdInSupabase(hostId);
+      if (remote.length > 0) {
+        for (const pod of remote) {
+          const idx = this.data.host_pods.findIndex(p => p.id === pod.id);
+          if (idx !== -1) {
+            this.data.host_pods[idx] = pod;
+          } else {
+            this.data.host_pods.push(pod);
+          }
+        }
+        this.save();
+        return remote;
+      }
+    } catch (e) {
+      console.warn('getPodsByHostIdAsync error:', e);
+    }
+    return cached;
+  }
   public addPod(pod: HostPod) {
     this.data.host_pods.push(pod);
     this.save();
+    saveHostPodToSupabase(pod).catch((err: any) => console.warn('Async pod save to Supabase:', err));
     return pod;
   }
   public updatePod(id: string, updates: Partial<HostPod>) {
@@ -370,7 +419,7 @@ export class Database {
     if (idx !== -1) {
       this.data.host_pods[idx] = { ...this.data.host_pods[idx], ...updates };
       this.save();
-      saveHostPodToSupabase(this.data.host_pods[idx]).catch(err => console.warn('Async pod save to Supabase:', err));
+      saveHostPodToSupabase(this.data.host_pods[idx]).catch((err: any) => console.warn('Async pod save to Supabase:', err));
       return this.data.host_pods[idx];
     }
     return null;
@@ -388,6 +437,20 @@ export class Database {
   // --- Guest Profiles & Vehicles ---
   public getGuestProfiles() { return this.data.guest_profiles; }
   public getGuestProfileByUserId(userId: string) { return this.data.guest_profiles.find(g => g.user_id === userId); }
+  public async getGuestProfileByUserIdAsync(userId: string): Promise<GuestProfile | null> {
+    const cached = this.getGuestProfileByUserId(userId);
+    if (cached) return cached;
+    try {
+      const remote = await findGuestProfileByUserIdInSupabase(userId);
+      if (remote) {
+        this.addGuestProfile(remote);
+        return remote;
+      }
+    } catch (e) {
+      console.warn('getGuestProfileByUserIdAsync error:', e);
+    }
+    return null;
+  }
   public addGuestProfile(profile: GuestProfile) {
     const idx = this.data.guest_profiles.findIndex(g => g.id === profile.id || g.user_id === profile.user_id);
     if (idx !== -1) {
@@ -400,22 +463,47 @@ export class Database {
     return profile;
   }
 
-  public getVehicleModels() {
-    if (!this.data.vehicle_models || this.data.vehicle_models.length === 0) {
-      this.data.vehicle_models = [...DEFAULT_VEHICLES];
-      this.save();
+  public getVehicleModels(): VehicleModel[] {
+    const map = new Map<string, VehicleModel>();
+    for (const v of (this.data.vehicle_models || [])) {
+      if (v && v.id) map.set(v.id, v);
     }
+    if (map.size === 0) {
+      for (const v of DEFAULT_VEHICLES) {
+        map.set(v.id, v);
+      }
+    }
+    this.data.vehicle_models = Array.from(map.values());
     return this.data.vehicle_models;
   }
-  public getVehicleModelById(id: string) { return this.data.vehicle_models.find(v => v.id === id); }
+  public getVehicleModelById(id: string) { return this.getVehicleModels().find(v => v.id === id); }
   public addVehicleModel(model: VehicleModel) {
-    this.data.vehicle_models.push(model);
+    const idx = this.data.vehicle_models.findIndex(m => m.id === model.id);
+    if (idx !== -1) {
+      this.data.vehicle_models[idx] = model;
+    } else {
+      this.data.vehicle_models.push(model);
+    }
     this.save();
     return model;
   }
 
   public getGuestVehicles() { return this.data.guest_vehicles; }
   public getGuestVehicleByGuestId(guestId: string) { return this.data.guest_vehicles.find(v => v.guest_id === guestId); }
+  public async getGuestVehicleByGuestIdAsync(guestId: string): Promise<GuestVehicle | null> {
+    const cached = this.getGuestVehicleByGuestId(guestId);
+    if (cached) return cached;
+    try {
+      const remote = await findGuestVehicleByGuestIdInSupabase(guestId);
+      if (remote) {
+        this.addGuestVehicle(remote);
+        return remote;
+      }
+    } catch (e) {
+      console.warn('getGuestVehicleByGuestIdAsync error:', e);
+    }
+    return null;
+  }
   public addGuestVehicle(vehicle: GuestVehicle) {
     // Replace if exists for guest
     this.data.guest_vehicles = this.data.guest_vehicles.filter(v => v.guest_id !== vehicle.guest_id);

@@ -13,8 +13,11 @@ hostRouter.use(requireRole(['HOST', 'ADMIN']));
 /**
  * Get Host Dashboard overview
  */
-hostRouter.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
-  const host = db.getHostProfileByUserId(req.user!.id);
+hostRouter.get('/dashboard', async (req: AuthenticatedRequest, res: Response) => {
+  let host: HostProfile | null | undefined = db.getHostProfileByUserId(req.user!.id);
+  if (!host) {
+    host = await db.getHostProfileByUserIdAsync(req.user!.id);
+  }
   if (!host) {
     return res.json({
       profileComplete: false,
@@ -22,7 +25,10 @@ hostRouter.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
     });
   }
 
-  const pods = db.getPodsByHostId(host.id);
+  let pods = db.getPodsByHostId(host.id);
+  if (pods.length === 0) {
+    pods = await db.getPodsByHostIdAsync(host.id);
+  }
   const activeSessions = db.getActiveSessionsForHost(host.id);
 
   // All completed sessions for this host
@@ -140,20 +146,29 @@ hostRouter.post('/profile', (req: AuthenticatedRequest, res: Response) => {
 /**
  * Get all pods belonging to this host
  */
-hostRouter.get('/pods', (req: AuthenticatedRequest, res: Response) => {
-  const host = db.getHostProfileByUserId(req.user!.id);
+hostRouter.get('/pods', async (req: AuthenticatedRequest, res: Response) => {
+  let host: HostProfile | null | undefined = db.getHostProfileByUserId(req.user!.id);
+  if (!host) {
+    host = await db.getHostProfileByUserIdAsync(req.user!.id);
+  }
   if (!host) {
     return res.status(400).json({ error: 'Host profile must be created first.' });
   }
-  const pods = db.getPodsByHostId(host.id);
+  let pods = db.getPodsByHostId(host.id);
+  if (pods.length === 0) {
+    pods = await db.getPodsByHostIdAsync(host.id);
+  }
   return res.json({ pods });
 });
 
 /**
  * Add a new physical charging pod (Max 2 pods per host strictly enforced!)
  */
-hostRouter.post('/pods', (req: AuthenticatedRequest, res: Response) => {
-  const host = db.getHostProfileByUserId(req.user!.id);
+hostRouter.post('/pods', async (req: AuthenticatedRequest, res: Response) => {
+  let host: HostProfile | null | undefined = db.getHostProfileByUserId(req.user!.id);
+  if (!host) {
+    host = await db.getHostProfileByUserIdAsync(req.user!.id);
+  }
   if (!host) {
     return res.status(400).json({ error: 'Host profile must be created first.' });
   }

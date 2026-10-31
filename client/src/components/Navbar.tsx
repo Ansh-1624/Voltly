@@ -82,10 +82,17 @@ export const Navbar: React.FC = () => {
               Log In
             </button>
             <button
-              onClick={() => openAuthModal('SIGNUP')}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5"
+              onClick={() => openAuthModal('SIGNUP', 'HOST')}
+              className="hidden sm:flex px-3.5 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-colors items-center gap-1.5"
             >
-              <span>Get Started</span>
+              <Zap className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Become a Host</span>
+            </button>
+            <button
+              onClick={() => openAuthModal('SIGNUP', 'GUEST')}
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition-all flex items-center gap-1.5"
+            >
+              <span>Sign Up</span>
             </button>
           </div>
         )}

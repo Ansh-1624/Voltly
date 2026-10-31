@@ -21,8 +21,11 @@ guestRouter.use(requireRole(['GUEST', 'ADMIN']));
 /**
  * Get guest dashboard summary
  */
-guestRouter.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
-  const guestProfile = db.getGuestProfileByUserId(req.user!.id);
+guestRouter.get('/dashboard', async (req: AuthenticatedRequest, res: Response) => {
+  let guestProfile: GuestProfile | null | undefined = db.getGuestProfileByUserId(req.user!.id);
+  if (!guestProfile) {
+    guestProfile = await db.getGuestProfileByUserIdAsync(req.user!.id);
+  }
   if (!guestProfile) {
     return res.json({
       profileComplete: false,
@@ -30,7 +33,10 @@ guestRouter.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
     });
   }
 
-  const guestVehicle = db.getGuestVehicleByGuestId(guestProfile.id);
+  let guestVehicle: GuestVehicle | null | undefined = db.getGuestVehicleByGuestId(guestProfile.id);
+  if (!guestVehicle) {
+    guestVehicle = await db.getGuestVehicleByGuestIdAsync(guestProfile.id);
+  }
   const activeSession = db.getActiveSessionForGuest(guestProfile.id);
   const latestRec = db.getLatestRecommendationForGuest(guestProfile.id);
 
@@ -84,7 +90,7 @@ guestRouter.get('/dashboard', (req: AuthenticatedRequest, res: Response) => {
 /**
  * Complete guest onboarding: register vehicle & portable EVSE
  */
-guestRouter.post('/onboard', (req: AuthenticatedRequest, res: Response) => {
+guestRouter.post('/onboard', async (req: AuthenticatedRequest, res: Response) => {
   const {
     vehicle_category = 'FOUR_WHEELER',
     vehicle_model_id,
@@ -100,7 +106,10 @@ guestRouter.post('/onboard', (req: AuthenticatedRequest, res: Response) => {
     evse_vehicle_connector = 'IEC_62196_TYPE_2',
   } = req.body;
 
-  let guestProfile = db.getGuestProfileByUserId(req.user!.id);
+  let guestProfile: GuestProfile | null | undefined = db.getGuestProfileByUserId(req.user!.id);
+  if (!guestProfile) {
+    guestProfile = await db.getGuestProfileByUserIdAsync(req.user!.id);
+  }
   if (!guestProfile) {
     guestProfile = {
       id: crypto.randomUUID(),

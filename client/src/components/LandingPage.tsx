@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   Zap,
+  Car,
   ShieldCheck,
   Compass,
   QrCode,
@@ -21,12 +22,19 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
   const { loginWithGoogle, loginAsAdmin, authModal, openAuthModal, closeAuthModal } = useAuth();
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleName, setGoogleName] = useState('');
+  const [signupRole, setSignupRole] = useState<'GUEST' | 'HOST'>('GUEST');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPasscode, setAdminPasscode] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [notFoundPrompt, setNotFoundPrompt] = useState(false);
   const [existsPrompt, setExistsPrompt] = useState(false);
+
+  useEffect(() => {
+    if (authModal.initialRole) {
+      setSignupRole(authModal.initialRole);
+    }
+  }, [authModal.initialRole]);
 
   const handleGoogleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +47,8 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
     const isLogin = authModal.mode === 'LOGIN';
     try {
       const name = googleName.trim() || googleEmail.split('@')[0];
-      await loginWithGoogle(googleEmail.trim(), name, 'GUEST', isLogin ? 'login' : 'signup');
+      const roleToPass = isLogin ? undefined : signupRole;
+      await loginWithGoogle(googleEmail.trim(), name, roleToPass, isLogin ? 'login' : 'signup');
       closeAuthModal();
     } catch (err: any) {
       if (err.message && err.message.includes('No Voltly account found')) {
@@ -96,17 +105,33 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
               explainable, electrically verified, reachable recommendations.
             </p>
 
-            {/* Clear Split CTAs: Sign Up (New Users) vs Log In (Existing Users) */}
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Clear Split CTAs: EV Driver vs Household Host vs Log In */}
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <button
                 onClick={() => {
+                  setSignupRole('GUEST');
                   setAuthError(null);
                   setNotFoundPrompt(false);
-                  openAuthModal('SIGNUP');
+                  openAuthModal('SIGNUP', 'GUEST');
                 }}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 group"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2 group"
               >
-                <span>Get Started (Sign Up)</span>
+                <Car className="w-4 h-4" />
+                <span>Join as EV Driver</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              <button
+                onClick={() => {
+                  setSignupRole('HOST');
+                  setAuthError(null);
+                  setNotFoundPrompt(false);
+                  openAuthModal('SIGNUP', 'HOST');
+                }}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 group"
+              >
+                <Zap className="w-4 h-4" />
+                <span>Host a Charging Pod</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
@@ -116,14 +141,14 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                   setNotFoundPrompt(false);
                   openAuthModal('LOGIN');
                 }}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-colors flex items-center justify-center gap-2.5 shadow-xs"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition-colors flex items-center justify-center gap-2.5 shadow-xs"
               >
                 <img
                   src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
                   alt="Google"
                   className="w-4 h-4"
                 />
-                <span>Log In (Existing Users)</span>
+                <span>Log In (Existing)</span>
               </button>
             </div>
           </div>
@@ -306,6 +331,48 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
                 )}
 
                 <form onSubmit={handleGoogleSubmit} className="space-y-4">
+                  {/* Role Selector for New User Registration */}
+                  {authModal.mode === 'SIGNUP' && (
+                    <div className="space-y-1.5">
+                      <label className="block text-[11px] font-bold text-slate-700">
+                        I want to participate as:
+                      </label>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setSignupRole('GUEST')}
+                          className={`p-3 rounded-xl border-2 text-left transition-all flex flex-col justify-between ${
+                            signupRole === 'GUEST'
+                              ? 'border-blue-600 bg-blue-50/70 text-blue-950 ring-1 ring-blue-600'
+                              : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 font-bold text-xs">
+                            <Car className="w-3.5 h-3.5 text-blue-600" />
+                            <span>EV Driver</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 mt-1">Need 16A chargers on the go</p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setSignupRole('HOST')}
+                          className={`p-3 rounded-xl border-2 text-left transition-all flex flex-col justify-between ${
+                            signupRole === 'HOST'
+                              ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 ring-1 ring-emerald-600'
+                              : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 font-bold text-xs">
+                            <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Household Host</span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 mt-1">Share 16A socket & earn</p>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Full Name field only required when Signing Up as new user */}
                   {authModal.mode === 'SIGNUP' && (
                     <div>
