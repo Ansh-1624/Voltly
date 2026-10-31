@@ -76,6 +76,7 @@ adminRouter.post('/pods/:id/approve', (req: AuthenticatedRequest, res: Response)
   // Update pod and host verification status
   const updatedPod = db.updatePod(pod.id, {
     verification_status: 'APPROVED',
+    status: 'AVAILABLE',
     admin_notes: 'Electrical safety review passed by Voltly Compliance Admin.',
   });
 

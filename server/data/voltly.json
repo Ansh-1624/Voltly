@@ -113,6 +113,22 @@
       "checked_by_electrician": true,
       "notes": "Socket visual check confirmed.",
       "created_at": "2026-10-31T08:05:49.208Z"
+    },
+    {
+      "id": "0e2b0687-d334-462b-ac47-36db0589bd35",
+      "user_id": "user-admin-1",
+      "household_location": "Indiranagar 100ft Road, Bengaluru, Karnataka",
+      "latitude": 12.9716,
+      "longitude": 77.6412,
+      "electricity_supply_type": "SINGLE_PHASE",
+      "sanctioned_load_kw": 5,
+      "electricity_tariff": 8.5,
+      "max_simultaneous_sessions": 1,
+      "verification_status": "PENDING",
+      "earthing_confirmed": true,
+      "checked_by_electrician": true,
+      "notes": "Socket visual check confirmed.",
+      "created_at": "2026-10-31T10:40:42.994Z"
     }
   ],
   "host_pods": [
@@ -187,6 +203,20 @@
       "status": "AVAILABLE",
       "verification_status": "PENDING",
       "created_at": "2026-10-31T08:05:49.213Z"
+    },
+    {
+      "id": "a8a57593-248e-4359-9718-85f1c15b9dff",
+      "host_id": "0e2b0687-d334-462b-ac47-36db0589bd35",
+      "pod_name": "Home Driveway Pod 1",
+      "socket_type": "16A_3PIN",
+      "rated_current_a": 16,
+      "rated_voltage_v": 230,
+      "verified_safe_power_kw": 3.3,
+      "earthing_status": "PROPER",
+      "availability_schedule": "All days, 07:00 AM - 10:00 PM",
+      "status": "AVAILABLE",
+      "verification_status": "PENDING",
+      "created_at": "2026-10-31T10:40:42.999Z"
     }
   ],
   "guest_profiles": [
@@ -213,6 +243,12 @@
       "user_id": "user-host-2",
       "vehicle_category": "FOUR_WHEELER",
       "created_at": "2026-10-31T08:12:04.185Z"
+    },
+    {
+      "id": "29c19324-464d-4492-b8be-ccd2d90b352e",
+      "user_id": "user-admin-1",
+      "vehicle_category": "FOUR_WHEELER",
+      "created_at": "2026-10-31T10:39:20.444Z"
     }
   ],
   "vehicle_models": [
@@ -351,6 +387,20 @@
       "evse_rated_power_kw": 3.3,
       "evse_vehicle_connector": "IEC_62196_TYPE_2",
       "created_at": "2026-10-31T08:12:04.186Z"
+    },
+    {
+      "id": "282991e1-286a-463d-9a69-7b29a69ec3d2",
+      "guest_id": "29c19324-464d-4492-b8be-ccd2d90b352e",
+      "vehicle_model_id": "vm-nexon-ev",
+      "battery_capacity_kwh": 40.5,
+      "vehicle_connector": "IEC_62196_TYPE_2",
+      "max_ac_power_kw": 3.3,
+      "ac_charging_supported": true,
+      "evse_make_model": "OEM Portable 16A Charging Cable",
+      "evse_supply_plug": "16A_3PIN",
+      "evse_rated_power_kw": 3.3,
+      "evse_vehicle_connector": "IEC_62196_TYPE_2",
+      "created_at": "2026-10-31T10:39:20.445Z"
     }
   ],
   "recommendations": [
@@ -413,6 +463,21 @@
       "why_selected_reason": "Guardian Angel selected Pod \"Indiranagar Driveway Pod #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 6.82 km away (~16 min travel time). Rate is locked at ₹0.47/min (₹8.5/kWh).",
       "ranking_score": 87.88,
       "created_at": "2026-10-31T08:14:05.167Z"
+    },
+    {
+      "id": "258210c1-5c16-474c-abc5-71ba7fe6897b",
+      "guest_id": "29c19324-464d-4492-b8be-ccd2d90b352e",
+      "selected_pod_id": "pod-2a",
+      "guest_lat": 12.9716,
+      "guest_lng": 77.5946,
+      "initial_battery_pct": 35,
+      "estimated_range_km": 48,
+      "estimated_distance_km": 7.27,
+      "estimated_eta_minutes": 17,
+      "status": "ACCEPTED",
+      "why_selected_reason": "Guardian Angel selected Pod \"Koramangala Green Port #1\" as your optimal charging match. It offers verified 16A earthing, 3.3 kW effective charging speed, and is conveniently located 7.27 km away (~17 min travel time). Rate is locked at ₹0.49/min (₹9/kWh).",
+      "ranking_score": 85.06,
+      "created_at": "2026-10-31T10:39:31.543Z"
     }
   ],
   "recommendation_feedback": [],
@@ -449,6 +514,18 @@
       "expires_at": "2026-10-31T08:24:35.434Z",
       "used_at": null,
       "created_at": "2026-10-31T08:14:35.434Z"
+    },
+    {
+      "id": "ae6a63ac-684b-4243-9de1-aa21668a1320",
+      "token_hash": "83098d11d70e32abc901cd4a1750191f7d47a01e6704d20a51e96293692d36f3",
+      "raw_token_demo": "99ab16ece8d2adc12a2823faf35a89a2a1d513bddfa03ed7c42adc0e89c4b988",
+      "guest_id": "29c19324-464d-4492-b8be-ccd2d90b352e",
+      "host_id": "hp-2",
+      "pod_id": "pod-2a",
+      "recommendation_id": "258210c1-5c16-474c-abc5-71ba7fe6897b",
+      "expires_at": "2026-10-31T10:50:20.243Z",
+      "used_at": null,
+      "created_at": "2026-10-31T10:40:20.243Z"
     }
   ],
   "charging_sessions": [

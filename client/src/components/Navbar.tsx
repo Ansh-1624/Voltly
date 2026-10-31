@@ -67,10 +67,10 @@ export const Navbar: React.FC = () => {
             <button
               onClick={logout}
               title="Sign Out"
-              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-1 border border-slate-200 hover:border-rose-200 text-xs font-semibold"
+              className="px-3 py-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-1.5 border border-slate-200 hover:border-rose-200 text-xs font-bold"
             >
-              <LogOut className="w-4 h-4 text-slate-500" />
-              <span className="hidden sm:inline">Sign Out</span>
+              <LogOut className="w-3.5 h-3.5 text-slate-500" />
+              <span>Sign Out</span>
             </button>
           </div>
         ) : null}

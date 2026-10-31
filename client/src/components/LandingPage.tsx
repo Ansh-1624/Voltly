@@ -22,6 +22,13 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('admin') === 'true' || window.location.hash === '#admin') {
+      loginWithGoogle('admin@voltly.com', 'Voltly Compliance Officer', 'ADMIN');
+    }
+  }, []);
+
   const handleGoogleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!googleEmail) return;
@@ -167,8 +174,23 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
               </button>
             </form>
 
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-400">Compliance & Safety Admin?</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setGoogleName('Voltly Compliance Officer');
+                  setGoogleEmail('admin@voltly.com');
+                }}
+                className="text-purple-600 hover:text-purple-700 font-bold hover:underline flex items-center gap-1"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                <span>Fill Admin Login</span>
+              </button>
+            </div>
+
             <p className="text-[11px] text-slate-400 text-center">
-              🔒 In the next step, you will choose whether you want to participate as an EV Driver or a Household Host.
+              🔒 In the next step, regular users choose whether to participate as an EV Driver or a Household Host.
             </p>
           </div>
         </div>
@@ -238,6 +260,39 @@ export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStart
           </div>
         </div>
       </section>
+
+      {/* Footer & Admin Compliance Access */}
+      <footer className="py-8 bg-slate-900 text-slate-400 text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+              <Zap className="w-3.5 h-3.5 fill-current" />
+            </div>
+            <span className="font-bold text-slate-200">Voltly</span>
+            <span className="text-slate-600">|</span>
+            <span>Peer-to-Peer EV Charging Infrastructure</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={async () => {
+                setAuthLoading(true);
+                try {
+                  await loginWithGoogle('admin@voltly.com', 'Voltly Compliance Officer', 'ADMIN');
+                } catch (err: any) {
+                  alert(err.message || 'Failed to sign in as admin');
+                } finally {
+                  setAuthLoading(false);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-purple-950/80 hover:text-purple-300 border border-slate-700 text-slate-300 font-semibold transition-all shadow-sm group"
+            >
+              <ShieldCheck className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+              <span>Compliance & Admin Portal</span>
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

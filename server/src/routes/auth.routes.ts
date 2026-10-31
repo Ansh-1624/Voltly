@@ -15,16 +15,21 @@ authRouter.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Email is required' });
   }
 
-  let user = db.getUserByEmail(email);
+  const normalizedEmail = email.toLowerCase().trim();
+  const isAdmin = normalizedEmail === 'admin@voltly.com' || normalizedEmail.endsWith('@voltly-admin.com');
+
+  let user = db.getUserByEmail(normalizedEmail);
   if (!user) {
     user = {
       id: crypto.randomUUID(),
-      name: name || email.split('@')[0],
-      email,
-      role: role as UserRole,
+      name: isAdmin ? (name || 'Voltly Compliance Officer') : (name || normalizedEmail.split('@')[0]),
+      email: normalizedEmail,
+      role: isAdmin ? 'ADMIN' : (role as UserRole),
       created_at: new Date().toISOString(),
     };
     db.addUser(user);
+  } else if (isAdmin && user.role !== 'ADMIN') {
+    user = db.updateUser(user.id, { role: 'ADMIN' }) || user;
   }
 
   const token = generateToken(user);
@@ -66,18 +71,23 @@ authRouter.post('/google', (req, res) => {
     return res.status(400).json({ error: 'Email and name are required' });
   }
 
-  let user = db.getUserByEmail(email);
+  const normalizedEmail = email.toLowerCase().trim();
+  const isAdmin = normalizedEmail === 'admin@voltly.com' || normalizedEmail.endsWith('@voltly-admin.com');
+
+  let user = db.getUserByEmail(normalizedEmail);
   if (!user) {
     // Create new user
     user = {
       id: crypto.randomUUID(),
-      name,
-      email,
-      role: role as UserRole,
-      google_id: credential ? `google-${email}` : undefined,
+      name: isAdmin ? (name || 'Voltly Compliance Officer') : name,
+      email: normalizedEmail,
+      role: isAdmin ? 'ADMIN' : (role as UserRole),
+      google_id: credential ? `google-${normalizedEmail}` : undefined,
       created_at: new Date().toISOString(),
     };
     db.addUser(user);
+  } else if (isAdmin && user.role !== 'ADMIN') {
+    user = db.updateUser(user.id, { role: 'ADMIN' }) || user;
   }
 
   const token = generateToken(user);
